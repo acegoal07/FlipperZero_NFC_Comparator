@@ -3,7 +3,6 @@
 // #define NFC_COMPARATOR_H
 
 #include <furi.h>
-#include <furi_hal.h>
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>

@@ -4,12 +4,6 @@ typedef enum {
    NfcComparatorSceneFinderSettingsMenuSelection_Recursive
 } NfcComparatorSceneFinderSettingsMenuSelection;
 
-static void nfc_comparator_finder_settings_menu_callback(void* context, uint32_t index) {
-   furi_assert(context);
-   NfcComparator* nfc_comparator = context;
-   scene_manager_handle_custom_event(nfc_comparator->scene_manager, index);
-}
-
 static void nfc_comparator_finder_settings_options_change_callback(VariableItem* item) {
    furi_assert(item);
    NfcComparator* nfc_comparator = variable_item_get_context(item);
@@ -33,8 +27,6 @@ void nfc_comparator_finder_settings_scene_on_enter(void* context) {
    furi_assert(context);
    NfcComparator* nfc_comparator = context;
 
-   variable_item_list_reset(nfc_comparator->views.variable_item_list);
-
    variable_item_list_set_header(nfc_comparator->views.variable_item_list, "Finder Settings");
 
    VariableItem* recursive_setting_item = variable_item_list_add(
@@ -47,11 +39,6 @@ void nfc_comparator_finder_settings_scene_on_enter(void* context) {
       recursive_setting_item, nfc_comparator->workers.finder_settings.recursive);
    variable_item_set_current_value_text(
       recursive_setting_item, nfc_comparator->workers.finder_settings.recursive ? "ON" : "OFF");
-
-   variable_item_list_set_enter_callback(
-      nfc_comparator->views.variable_item_list,
-      nfc_comparator_finder_settings_menu_callback,
-      nfc_comparator);
 
    view_dispatcher_switch_to_view(
       nfc_comparator->view_dispatcher, NfcComparatorView_VariableItemList);

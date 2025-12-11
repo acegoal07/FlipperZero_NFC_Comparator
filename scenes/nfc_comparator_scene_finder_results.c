@@ -32,7 +32,7 @@ void nfc_comparator_finder_results_scene_on_enter(void* context) {
               nfc_comparator->workers.compare_checks->protocol;
       break;
    default:
-      furi_string_printf(temp_str, "Unknown comparison type.");
+      furi_string_set(temp_str, "Unknown comparison type.");
       break;
    }
    if(match) {
@@ -41,7 +41,7 @@ void nfc_comparator_finder_results_scene_on_enter(void* context) {
          "\e#Match found!\e#\n %s",
          furi_string_get_cstr(nfc_comparator->workers.compare_checks->nfc_card_path));
    } else {
-      furi_string_printf(temp_str, "\e#No match found!\e#");
+      furi_string_set(temp_str, "\e#No match found!\e#");
    }
 
    widget_add_text_box_element(
