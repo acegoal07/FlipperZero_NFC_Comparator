@@ -1,14 +1,5 @@
-
 #include "../nfc_comparator.h"
-
-static void
-   nfc_comparator_compare_results_callback(GuiButtonType result, InputType type, void* context) {
-   furi_assert(context);
-   NfcComparator* nfc_comparator = context;
-   if(type == InputTypeShort) {
-      view_dispatcher_send_custom_event(nfc_comparator->view_dispatcher, result);
-   }
-}
+#include <dolphin/dolphin.h>
 
 static const char* match_str(bool match) {
    return match ? "Match" : "Mismatch";
@@ -21,89 +12,91 @@ void nfc_comparator_compare_results_scene_on_enter(void* context) {
    nfc_comparator_led_worker_start(
       nfc_comparator->notification_app, NfcComparatorLedState_Complete);
 
-   FuriString* temp_str = furi_string_alloc();
+   // Give points for performing a comparison
+   dolphin_deed(DolphinDeedNfcRead);
+
+   // Reset and build text
+   furi_string_reset(nfc_comparator->views.text_box_store);
 
    switch(nfc_comparator->workers.compare_checks->type) {
    case NfcCompareChecksType_Physical:
       furi_string_printf(
-         temp_str,
-         "\e#UID:\e# %s\n\e#UID length:\e# %s\n\e#Protocol:\e# %s",
+         nfc_comparator->views.text_box_store,
+         "UID: %s\nUID length: %s\nProtocol: %s",
          match_str(nfc_comparator->workers.compare_checks->uid),
          match_str(nfc_comparator->workers.compare_checks->uid_length),
          match_str(nfc_comparator->workers.compare_checks->protocol));
       break;
    case NfcCompareChecksType_Digital:
       furi_string_printf(
-         temp_str,
-         "\e#UID:\e# %s\n\e#UID length:\e# %s\n\e#Protocol:\e# %s\n\e#NFC Data:\e# %s",
+         nfc_comparator->views.text_box_store,
+         "UID: %s\nUID length: %s\nProtocol: %s\nNFC Data: %s",
          match_str(nfc_comparator->workers.compare_checks->uid),
          match_str(nfc_comparator->workers.compare_checks->uid_length),
          match_str(nfc_comparator->workers.compare_checks->protocol),
          match_str(nfc_comparator->workers.compare_checks->nfc_data));
+
+      // If NFC data is different, display all different blocks
+      if(!nfc_comparator->workers.compare_checks->nfc_data && 
+         nfc_comparator->workers.compare_checks->diff_count > 0) {
+         
+         // Calculate similarity percentage
+         uint16_t total = nfc_comparator->workers.compare_checks->total_blocks;
+         uint16_t diff = nfc_comparator->workers.compare_checks->diff_count;
+         uint16_t similar = total - diff;
+         uint8_t percentage = (similar * 100) / total;
+         
+         furi_string_cat_printf(nfc_comparator->views.text_box_store, 
+            "\n\nSimilarity: %u%% (%u/%u blocks match)\n\nDifferent blocks (%u):\n", 
+            percentage, similar, total, diff);
+         
+         // Display all blocks, 10 per line for better readability
+         for(int i = 0; i < diff; i++) {
+            furi_string_cat_printf(nfc_comparator->views.text_box_store, "%d", 
+               nfc_comparator->workers.compare_checks->diff_blocks[i]);
+            
+            // Add comma except for the last one
+            if(i < diff - 1) {
+               furi_string_cat_printf(nfc_comparator->views.text_box_store, ", ");
+               
+               // Line break every 10 blocks
+               if((i + 1) % 10 == 0) {
+                  furi_string_cat_printf(nfc_comparator->views.text_box_store, "\n");
+               }
+            }
+         }
+      }
       break;
    default:
-      furi_string_printf(temp_str, "Unknown comparison type.");
+      furi_string_printf(nfc_comparator->views.text_box_store, "Unknown comparison type.");
       break;
    }
 
-   widget_add_text_box_element(
-      nfc_comparator->views.widget,
-      0,
-      0,
-      128,
-      57,
-      AlignCenter,
-      AlignCenter,
-      furi_string_get_cstr(temp_str),
-      false);
-   widget_add_button_element(
-      nfc_comparator->views.widget,
-      GuiButtonTypeLeft,
-      "Again",
-      nfc_comparator_compare_results_callback,
-      nfc_comparator);
-   widget_add_button_element(
-      nfc_comparator->views.widget,
-      GuiButtonTypeRight,
-      "Exit",
-      nfc_comparator_compare_results_callback,
-      nfc_comparator);
+   // Configure TextBox with persistent text
+   text_box_reset(nfc_comparator->views.text_box);
+   text_box_set_text(nfc_comparator->views.text_box, furi_string_get_cstr(nfc_comparator->views.text_box_store));
+   text_box_set_font(nfc_comparator->views.text_box, TextBoxFontText);
 
-   furi_string_free(temp_str);
-
-   view_dispatcher_switch_to_view(nfc_comparator->view_dispatcher, NfcComparatorView_Widget);
+   view_dispatcher_switch_to_view(nfc_comparator->view_dispatcher, NfcComparatorView_TextBox);
 }
 
 bool nfc_comparator_compare_results_scene_on_event(void* context, SceneManagerEvent event) {
    NfcComparator* nfc_comparator = context;
    bool consumed = false;
-   if(event.type == SceneManagerEventTypeCustom) {
-      switch(event.event) {
-      case GuiButtonTypeLeft:
-         scene_manager_previous_scene(nfc_comparator->scene_manager);
-         consumed = true;
-         break;
-      case GuiButtonTypeRight:
-         scene_manager_search_and_switch_to_previous_scene(
-            nfc_comparator->scene_manager, NfcComparatorScene_CompareMenu);
-         consumed = true;
-         break;
-
-      default:
-         break;
-      }
-   } else if(event.type == SceneManagerEventTypeBack) {
-      scene_manager_search_and_switch_to_previous_scene(
-         nfc_comparator->scene_manager, NfcComparatorScene_CompareMenu);
+   
+   if(event.type == SceneManagerEventTypeBack) {
+      scene_manager_previous_scene(nfc_comparator->scene_manager);
       consumed = true;
    }
+   
    return consumed;
 }
 
 void nfc_comparator_compare_results_scene_on_exit(void* context) {
    furi_assert(context);
    NfcComparator* nfc_comparator = context;
-   widget_reset(nfc_comparator->views.widget);
+   text_box_reset(nfc_comparator->views.text_box);
+   furi_string_reset(nfc_comparator->views.text_box_store);
    nfc_comparator_led_worker_stop(nfc_comparator->notification_app);
    nfc_comparator_compare_checks_reset(nfc_comparator->workers.compare_checks);
 }

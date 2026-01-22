@@ -1,4 +1,5 @@
 #include "nfc_comparator_compare_checks.h"
+#include <nfc/protocols/mf_classic/mf_classic.h>
 
 NfcComparatorCompareChecks* nfc_comparator_compare_checks_alloc() {
    NfcComparatorCompareChecks* checks = malloc(sizeof(NfcComparatorCompareChecks));
@@ -29,6 +30,8 @@ void nfc_comparator_compare_checks_reset(NfcComparatorCompareChecks* checks) {
       checks->protocol = false;
       checks->nfc_data = false;
       checks->type = NfcCompareChecksType_Undefined;
+      checks->diff_count = 0;
+      checks->total_blocks = 0;
    }
 }
 
@@ -46,12 +49,16 @@ void nfc_comparator_compare_checks_set_type(
 
 void nfc_comparator_compare_checks_compare_cards(
    NfcComparatorCompareChecks* checks,
-   const NfcDevice* card1,
-   const NfcDevice* card2,
+   const struct NfcDevice* card1,
+   const struct NfcDevice* card2,
    bool check_data) {
    furi_assert(checks);
    furi_assert(card1);
    furi_assert(card2);
+
+   // Reset difference counter
+   checks->diff_count = 0;
+   checks->total_blocks = 0;
 
    // Compare protocols
    checks->protocol = nfc_device_get_protocol(card1) == nfc_device_get_protocol(card2);
@@ -74,6 +81,32 @@ void nfc_comparator_compare_checks_compare_cards(
    // compare NFC data
    if(check_data) {
       checks->nfc_data = nfc_device_is_equal(card1, card2);
+
+      // --- LOGIQUE AJOUTÉE POUR LISTER LES BLOCS ---
+      // Si les données sont différentes ET que c'est du Mifare Classic
+      if(!checks->nfc_data && checks->protocol && nfc_device_get_protocol(card1) == NfcProtocolMfClassic) {
+         
+         const MfClassicData* data1 = nfc_device_get_data(card1, NfcProtocolMfClassic);
+         const MfClassicData* data2 = nfc_device_get_data(card2, NfcProtocolMfClassic);
+         
+         // Récupérer le type de carte et le nombre de blocs
+         MfClassicType type = data1->type;
+         uint16_t block_count = mf_classic_get_total_block_num(type);
+         
+         // Stocker le nombre total de blocs
+         checks->total_blocks = block_count;
+         
+         // On parcourt les blocs (limité à 64 pour éviter les débordements de mémoire)
+         for(uint16_t i = 0; i < block_count && i < 64; i++) {
+            // Comparaison de la taille exacte d'un bloc (16 octets généralement)
+            if(memcmp(data1->block[i].data, data2->block[i].data, sizeof(data1->block[i].data)) != 0) {
+               checks->diff_blocks[checks->diff_count] = i;
+               checks->diff_count++;
+            }
+         }
+      }
+      // ----------------------------------------------
+
    } else {
       checks->nfc_data = false;
    }
