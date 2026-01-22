@@ -13,6 +13,7 @@
 #include <gui/modules/widget.h>
 #include <gui/modules/loading.h>
 #include <gui/modules/variable_item_list.h>
+#include <gui/modules/text_box.h>
 #include <notification/notification_messages.h>
 #include <nfc_device.h>
 #include <nfc_listener.h>
@@ -38,6 +39,7 @@ typedef enum {
    NfcComparatorView_Widget,
    NfcComparatorView_Loading,
    NfcComparatorView_VariableItemList,
+   NfcComparatorView_TextBox,
    NfcComparatorView_Count
 } NfcComparatorViews;
 
@@ -56,6 +58,8 @@ typedef struct {
    Widget* widget;
    Loading* loading;
    VariableItemList* variable_item_list;
+   TextBox* text_box;
+   FuriString* text_box_store;
 } NfcComparatorView;
 
 /** All worker instances used by the NFC Comparator app */

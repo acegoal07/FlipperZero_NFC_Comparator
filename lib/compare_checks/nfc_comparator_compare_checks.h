@@ -22,12 +22,15 @@ typedef enum {
  * @brief Structure holding the results of NFC comparison checks.
  */
 typedef struct {
-   FuriString* nfc_card_path; /**< Path to the NFC file */
-   bool uid; /**< UID match result */
-   bool uid_length; /**< UID length match result */
-   bool protocol; /**< Protocol match result */
-   bool nfc_data; /**< NFC data match result */
-   NfcCompareChecksType type; /**< Type of comparison */
+   FuriString* nfc_card_path;
+   bool uid;
+   bool uid_length;
+   bool protocol;
+   bool nfc_data;
+   NfcCompareChecksType type;
+   uint16_t diff_blocks[64];
+   uint16_t diff_count;
+   uint16_t total_blocks; 
 } NfcComparatorCompareChecks;
 
 /**

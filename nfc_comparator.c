@@ -1,4 +1,5 @@
 #include "nfc_comparator.h"
+#include <dolphin/dolphin.h>
 
 static bool nfc_comparator_custom_callback(void* context, uint32_t custom_event) {
    furi_assert(context);
@@ -40,6 +41,9 @@ static NfcComparator* nfc_comparator_alloc() {
 
    nfc_comparator->views.variable_item_list = variable_item_list_alloc();
 
+   nfc_comparator->views.text_box = text_box_alloc();
+   nfc_comparator->views.text_box_store = furi_string_alloc();
+
    nfc_comparator->notification_app = furi_record_open(RECORD_NOTIFICATION);
 
    nfc_comparator->workers.compare_checks = nfc_comparator_compare_checks_alloc();
@@ -77,6 +81,10 @@ static NfcComparator* nfc_comparator_alloc() {
       nfc_comparator->view_dispatcher,
       NfcComparatorView_VariableItemList,
       variable_item_list_get_view(nfc_comparator->views.variable_item_list));
+   view_dispatcher_add_view(
+      nfc_comparator->view_dispatcher,
+      NfcComparatorView_TextBox,
+      text_box_get_view(nfc_comparator->views.text_box));
 
    return nfc_comparator;
 }
@@ -91,6 +99,7 @@ static void nfc_comparator_free(NfcComparator* nfc_comparator) {
    view_dispatcher_remove_view(nfc_comparator->view_dispatcher, NfcComparatorView_Loading);
    view_dispatcher_remove_view(
       nfc_comparator->view_dispatcher, NfcComparatorView_VariableItemList);
+   view_dispatcher_remove_view(nfc_comparator->view_dispatcher, NfcComparatorView_TextBox);
 
    scene_manager_free(nfc_comparator->scene_manager);
    view_dispatcher_free(nfc_comparator->view_dispatcher);
@@ -103,6 +112,8 @@ static void nfc_comparator_free(NfcComparator* nfc_comparator) {
    widget_free(nfc_comparator->views.widget);
    loading_free(nfc_comparator->views.loading);
    variable_item_list_free(nfc_comparator->views.variable_item_list);
+   text_box_free(nfc_comparator->views.text_box);
+   furi_string_free(nfc_comparator->views.text_box_store);
    nfc_comparator_compare_checks_free(nfc_comparator->workers.compare_checks);
    furi_record_close(RECORD_NOTIFICATION);
 
@@ -123,6 +134,9 @@ int32_t nfc_comparator_main(void* p) {
    NfcComparator* nfc_comparator = nfc_comparator_alloc();
 
    nfc_comparator_set_log_level();
+   
+   // Give points for launching the app
+   dolphin_deed(DolphinDeedPluginStart);
 
    Gui* gui = furi_record_open(RECORD_GUI);
    view_dispatcher_attach_to_gui(
