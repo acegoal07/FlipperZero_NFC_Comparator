@@ -21,6 +21,7 @@
 #include <storage/storage.h>
 #include <dir_walk.h>
 #include <path.h>
+#include <dolphin/dolphin.h>
 
 #include "nfc_comparator_icons.h"
 #include "scenes/nfc_comparator_scene.h"
@@ -50,6 +51,12 @@ typedef struct {
    FuriString* tmp_output;
 } NfcComparatorFileBrowserView;
 
+/** Text box and its text store */
+typedef struct {
+   TextBox* view;
+   FuriString* store;
+} NfcComparatorTextBoxView;
+
 /** All views used by the NFC Comparator app */
 typedef struct {
    Submenu* submenu;
@@ -58,8 +65,7 @@ typedef struct {
    Widget* widget;
    Loading* loading;
    VariableItemList* variable_item_list;
-   TextBox* text_box;
-   FuriString* text_box_store;
+   NfcComparatorTextBoxView text_box;
 } NfcComparatorView;
 
 /** All worker instances used by the NFC Comparator app */

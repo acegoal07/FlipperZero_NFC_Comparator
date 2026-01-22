@@ -1,9 +1,10 @@
 #include "../nfc_comparator.h"
-#include <dolphin/dolphin.h>
 
 static void nfc_comparator_digital_compare_scan_menu_callback(void* context) {
    furi_assert(context);
    NfcComparator* nfc_comparator = context;
+
+   view_dispatcher_switch_to_view(nfc_comparator->view_dispatcher, NfcComparatorView_Loading);
 
    furi_string_swap(
       nfc_comparator->views.file_browser.output, nfc_comparator->views.file_browser.tmp_output);
@@ -35,7 +36,7 @@ static void nfc_comparator_digital_compare_scan_menu_callback(void* context) {
       uint16_t total = nfc_comparator->workers.compare_checks->total_blocks;
       uint16_t diff = nfc_comparator->workers.compare_checks->diff_count;
       uint8_t percentage = ((total - diff) * 100) / total;
-      
+
       if(percentage == 100) {
          // Perfect match = 3 points
          dolphin_deed(DolphinDeedNfcReadSuccess);

@@ -2,6 +2,7 @@
 
 #include <furi.h>
 #include <nfc_device.h>
+#include <nfc/protocols/mf_classic/mf_classic.h>
 
 #ifdef __cplusplus
 extern "C" {
