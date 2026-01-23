@@ -3,6 +3,8 @@
 #include <furi.h>
 #include <nfc_device.h>
 #include <nfc/protocols/mf_classic/mf_classic.h>
+#include <nfc/protocols/st25tb/st25tb.h>
+#include <nfc/protocols/mf_ultralight/mf_ultralight.h>
 
 #ifdef __cplusplus
 extern "C" {

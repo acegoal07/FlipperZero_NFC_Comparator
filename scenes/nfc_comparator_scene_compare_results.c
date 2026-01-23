@@ -76,7 +76,6 @@ void nfc_comparator_compare_results_scene_on_enter(void* context) {
       break;
    }
 
-   // Configure TextBox with persistent text
    text_box_reset(nfc_comparator->views.text_box.view);
    text_box_set_text(
       nfc_comparator->views.text_box.view,
