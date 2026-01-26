@@ -11,10 +11,8 @@ void nfc_comparator_compare_results_scene_on_enter(void* context) {
    nfc_comparator_led_worker_start(
       nfc_comparator->notification_app, NfcComparatorLedState_Complete);
 
-   // Give points for performing a comparison
    dolphin_deed(DolphinDeedNfcRead);
 
-   // Reset and build text
    furi_string_reset(nfc_comparator->views.text_box.store);
 
    switch(nfc_comparator->workers.compare_checks->type) {
@@ -35,10 +33,8 @@ void nfc_comparator_compare_results_scene_on_enter(void* context) {
          match_str(nfc_comparator->workers.compare_checks->protocol),
          match_str(nfc_comparator->workers.compare_checks->nfc_data));
 
-      // If NFC data is different, display all different blocks
       if(!nfc_comparator->workers.compare_checks->nfc_data &&
          nfc_comparator->workers.compare_checks->diff_count > 0) {
-         // Calculate similarity percentage
          uint16_t total = nfc_comparator->workers.compare_checks->total_blocks;
          uint16_t diff = nfc_comparator->workers.compare_checks->diff_count;
          uint16_t similar = total - diff;
@@ -52,18 +48,15 @@ void nfc_comparator_compare_results_scene_on_enter(void* context) {
             total,
             diff);
 
-         // Display all blocks, 10 per line for better readability
          for(int i = 0; i < diff; i++) {
             furi_string_cat_printf(
                nfc_comparator->views.text_box.store,
                "%d",
                nfc_comparator->workers.compare_checks->diff_blocks[i]);
 
-            // Add comma except for the last one
             if(i < diff - 1) {
                furi_string_cat_printf(nfc_comparator->views.text_box.store, ", ");
 
-               // Line break every 5 blocks
                if((i + 1) % 5 == 0) {
                   furi_string_cat_printf(nfc_comparator->views.text_box.store, "\n");
                }

@@ -5,6 +5,7 @@
 #include <nfc/protocols/mf_classic/mf_classic.h>
 #include <nfc/protocols/st25tb/st25tb.h>
 #include <nfc/protocols/mf_ultralight/mf_ultralight.h>
+#include <nfc/protocols/felica/felica.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +34,7 @@ typedef struct {
    NfcCompareChecksType type;
    uint16_t diff_blocks[64];
    uint16_t diff_count;
-   uint16_t total_blocks; 
+   uint16_t total_blocks;
 } NfcComparatorCompareChecks;
 
 /**
@@ -47,6 +48,15 @@ NfcComparatorCompareChecks* nfc_comparator_compare_checks_alloc(void);
  * @param checks Pointer to the structure to free.
  */
 void nfc_comparator_compare_checks_free(NfcComparatorCompareChecks* checks);
+
+/**
+ * @brief Copy checks data from one compare checks to another
+ * @param destination Where the data should be copied to
+ * @param data The data that should be copied to the destination
+ */
+void nfc_comparator_compare_checks_copy(
+   NfcComparatorCompareChecks* destination,
+   NfcComparatorCompareChecks* data);
 
 /**
  * @brief Reset the fields of a NfcComparatorCompareChecks structure.

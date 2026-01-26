@@ -7,7 +7,6 @@ void nfc_comparator_finder_results_scene_on_enter(void* context) {
    nfc_comparator_led_worker_start(
       nfc_comparator->notification_app, NfcComparatorLedState_Complete);
 
-   // Reset and build text
    furi_string_reset(nfc_comparator->views.text_box.store);
 
    bool match = false;
@@ -29,22 +28,22 @@ void nfc_comparator_finder_results_scene_on_enter(void* context) {
    }
 
    if(match) {
-      // Match found = more points!
       dolphin_deed(DolphinDeedNfcReadSuccess);
 
       furi_string_printf(
          nfc_comparator->views.text_box.store,
-         "Match found!\n\n%s",
+         "Match found!\n\nNFC location:\n%s",
          furi_string_get_cstr(nfc_comparator->workers.compare_checks->nfc_card_path));
    } else {
-      // No match but we made the effort
       dolphin_deed(DolphinDeedNfcRead);
 
-      furi_string_printf(nfc_comparator->views.text_box.store, "No match found!");
+      if(nfc_comparator->workers.compare_checks->diff_count <
+         (nfc_comparator->workers.compare_checks->total_blocks * 0.80)) {
+         furi_string_printf(
+            nfc_comparator->views.text_box.store,
+            "Partial match found!\n\nNFC location:\n%s",
+            furi_string_get_cstr(nfc_comparator->workers.compare_checks->nfc_card_path));
 
-      // Display all different blocks if present
-      if(nfc_comparator->workers.compare_checks->diff_count > 0) {
-         // Calculate similarity percentage
          uint16_t total = nfc_comparator->workers.compare_checks->total_blocks;
          uint16_t diff = nfc_comparator->workers.compare_checks->diff_count;
          uint16_t similar = total - diff;
@@ -58,27 +57,25 @@ void nfc_comparator_finder_results_scene_on_enter(void* context) {
             total,
             diff);
 
-         // Display all blocks, 10 per line
          for(int i = 0; i < diff; i++) {
             furi_string_cat_printf(
                nfc_comparator->views.text_box.store,
                "%d",
                nfc_comparator->workers.compare_checks->diff_blocks[i]);
 
-            // Add comma except for the last one
             if(i < diff - 1) {
                furi_string_cat_printf(nfc_comparator->views.text_box.store, ", ");
 
-               // Line break every 5 blocks
                if((i + 1) % 5 == 0) {
                   furi_string_cat_printf(nfc_comparator->views.text_box.store, "\n");
                }
             }
          }
+      } else {
+         furi_string_printf(nfc_comparator->views.text_box.store, "No match found!");
       }
    }
 
-   // Configure TextBox with persistent text
    text_box_reset(nfc_comparator->views.text_box.view);
    text_box_set_text(
       nfc_comparator->views.text_box.view,
