@@ -148,6 +148,7 @@ void nfc_comparator_finder_worker_compare_cards(
    furi_assert(nfc_card_1);
    DirWalk* dir_walk = dir_walk_alloc(furi_record_open(RECORD_STORAGE));
    NfcDevice* nfc_card_2 = nfc_device_alloc();
+   NfcComparatorCompareChecks* tmp_compare_checks = nfc_comparator_compare_checks_alloc();
 
    if(dir_walk_open(dir_walk, "/ext/nfc")) {
       FuriString* ext = furi_string_alloc();
@@ -155,10 +156,9 @@ void nfc_comparator_finder_worker_compare_cards(
       dir_walk_set_recursive(dir_walk, settings->recursive);
 
       while(dir_walk_read(dir_walk, compare_checks->nfc_card_path, NULL) == DirWalkOK) {
-         if(nfc_card_path != NULL) {
-            if(furi_string_cmpi(compare_checks->nfc_card_path, nfc_card_path) == 0) {
-               continue;
-            }
+         if(nfc_card_path && furi_string_cmpi(compare_checks->nfc_card_path, nfc_card_path) == 0) {
+            nfc_comparator_compare_checks_reset(compare_checks);
+            continue;
          }
 
          path_extract_ext_str(compare_checks->nfc_card_path, ext);
@@ -169,11 +169,28 @@ void nfc_comparator_finder_worker_compare_cards(
                   compare_checks, nfc_card_1, nfc_card_2, check_data);
 
                if(compare_checks->uid && compare_checks->uid_length && compare_checks->protocol) {
-                  break;
+                  if(compare_checks->diff_count == 0) {
+                     break;
+                  } else if(
+                     furi_string_empty(tmp_compare_checks->nfc_card_path) ||
+                     (tmp_compare_checks->diff_count > compare_checks->diff_count)) {
+                     nfc_comparator_compare_checks_copy(tmp_compare_checks, compare_checks);
+                  }
+               } else {
+                  nfc_comparator_compare_checks_reset(compare_checks);
                }
             }
          }
       }
+
+      if(!furi_string_empty(tmp_compare_checks->nfc_card_path) &&
+         (furi_string_empty(compare_checks->nfc_card_path) ||
+          tmp_compare_checks->diff_count < compare_checks->diff_count)) {
+         nfc_comparator_compare_checks_copy(compare_checks, tmp_compare_checks);
+      }
+
+      nfc_comparator_compare_checks_free(tmp_compare_checks);
+
       dir_walk_close(dir_walk);
       furi_string_free(ext);
       dir_walk_free(dir_walk);

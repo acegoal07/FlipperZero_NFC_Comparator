@@ -21,6 +21,22 @@ void nfc_comparator_compare_checks_free(NfcComparatorCompareChecks* checks) {
    }
 }
 
+void nfc_comparator_compare_checks_copy(
+   NfcComparatorCompareChecks* destination,
+   NfcComparatorCompareChecks* data) {
+   furi_string_reset(destination->nfc_card_path);
+   furi_string_set(destination->nfc_card_path, data->nfc_card_path);
+
+   destination->uid = data->uid;
+   destination->uid_length = data->uid_length;
+   destination->protocol = data->protocol;
+   destination->nfc_data = data->nfc_data;
+   destination->type = data->type;
+   destination->total_blocks = data->total_blocks;
+   destination->diff_count = data->diff_count;
+   memcpy(destination->diff_blocks, data->diff_blocks, sizeof(destination->diff_blocks));
+}
+
 void nfc_comparator_compare_checks_reset(NfcComparatorCompareChecks* checks) {
    if(checks) {
       furi_string_reset(checks->nfc_card_path);
@@ -29,10 +45,13 @@ void nfc_comparator_compare_checks_reset(NfcComparatorCompareChecks* checks) {
       checks->protocol = false;
       checks->nfc_data = false;
       checks->type = NfcCompareChecksType_Undefined;
+      checks->diff_count = 0;
+      checks->total_blocks = 0;
    }
 }
 
-NfcCompareChecksType nfc_comparator_compare_checks_get_type(const NfcComparatorCompareChecks* checks) {
+NfcCompareChecksType
+   nfc_comparator_compare_checks_get_type(const NfcComparatorCompareChecks* checks) {
    furi_assert(checks);
    return checks->type;
 }
@@ -46,12 +65,16 @@ void nfc_comparator_compare_checks_set_type(
 
 void nfc_comparator_compare_checks_compare_cards(
    NfcComparatorCompareChecks* checks,
-   const NfcDevice* card1,
-   const NfcDevice* card2,
+   const struct NfcDevice* card1,
+   const struct NfcDevice* card2,
    bool check_data) {
    furi_assert(checks);
    furi_assert(card1);
    furi_assert(card2);
+
+   // Reset difference counter
+   checks->diff_count = 0;
+   checks->total_blocks = 0;
 
    // Compare protocols
    checks->protocol = nfc_device_get_protocol(card1) == nfc_device_get_protocol(card2);
@@ -74,7 +97,84 @@ void nfc_comparator_compare_checks_compare_cards(
    // compare NFC data
    if(check_data) {
       checks->nfc_data = nfc_device_is_equal(card1, card2);
-   } else {
-      checks->nfc_data = false;
+
+      // COMPARE LOGIC
+      if(!checks->nfc_data && checks->protocol) {
+         // Mifara Classic - @yoan8306
+         if(nfc_device_get_protocol(card1) == NfcProtocolMfClassic) {
+            const MfClassicData* data1 = nfc_device_get_data(card1, NfcProtocolMfClassic);
+            const MfClassicData* data2 = nfc_device_get_data(card2, NfcProtocolMfClassic);
+
+            MfClassicType type = data1->type;
+            uint16_t block_count = mf_classic_get_total_block_num(type);
+
+            checks->total_blocks = block_count;
+
+            for(uint16_t i = 0; i < block_count && i < 64; i++) {
+               if(memcmp(
+                     data1->block[i].data, data2->block[i].data, sizeof(data1->block[i].data)) !=
+                  0) {
+                  checks->diff_blocks[checks->diff_count] = i;
+                  checks->diff_count++;
+               }
+            }
+         }
+
+         // Untested logic due to lack missing access to NFC files to test
+
+         // Mifare Ultralight
+         // else if(nfc_device_get_protocol(card1) == NfcProtocolMfUltralight) {
+         //    const MfUltralightData* data1 = nfc_device_get_data(card1, NfcProtocolMfUltralight);
+         //    const MfUltralightData* data2 = nfc_device_get_data(card2, NfcProtocolMfUltralight);
+
+         //    MfUltralightType type = data1->type;
+         //    uint16_t block_count = mf_ultralight_get_pages_total(type);
+         //    checks->total_blocks = block_count;
+
+         //    for(uint16_t i = 0; i < block_count && i < 48; i++) {
+         //       if(memcmp(data1->page[i].data, data2->page[i].data, sizeof(data1->page[i].data)) !=
+         //          0) {
+         //          checks->diff_blocks[checks->diff_count] = i;
+         //          checks->diff_count++;
+         //       }
+         //    }
+         // }
+
+         // ST25TB
+         // else if(nfc_device_get_protocol(card1) == NfcProtocolSt25tb) {
+         //    const St25tbData* data1 = nfc_device_get_data(card1, NfcProtocolSt25tb);
+         //    const St25tbData* data2 = nfc_device_get_data(card2, NfcProtocolSt25tb);
+
+         //    St25tbType type = data1->type;
+         //    uint8_t block_count = st25tb_get_block_count(type);
+         //    checks->total_blocks = block_count;
+
+         //    for(uint8_t i = 0; i < block_count && i < 128; i++) {
+         //       if(memcmp(&data1->blocks[i], &data2->blocks[i], sizeof(data1->blocks[i])) != 0) {
+         //          checks->diff_blocks[checks->diff_count] = i;
+         //          checks->diff_count++;
+         //       }
+         //    }
+         // }
+
+         // Felica
+         // else if(nfc_device_get_protocol(card1) == NfcProtocolFelica) {
+         //    const FelicaData* data1 =
+         //       felica_get_base_data(nfc_device_get_data(card1, NfcProtocolFelica));
+         //    const FelicaData* data2 =
+         //       felica_get_base_data(nfc_device_get_data(card2, NfcProtocolFelica));
+
+         //    uint8_t block_count = data1->blocks_total;
+         //    checks->total_blocks = data1->blocks_total;
+
+         //    for(uint8_t i = 0; i < block_count && i < 128; i++) {
+         //       if(memcmp(&data1->data.dump[i], &data2->data.dump[i], sizeof(data1->data.dump[i])) !=
+         //          0) {
+         //          checks->diff_blocks[checks->diff_count] = i;
+         //          checks->diff_count++;
+         //       }
+         //    }
+         // }
+      }
    }
 }

@@ -12,6 +12,7 @@
 #include <gui/modules/widget.h>
 #include <gui/modules/loading.h>
 #include <gui/modules/variable_item_list.h>
+#include <gui/modules/text_box.h>
 #include <notification/notification_messages.h>
 #include <nfc_device.h>
 #include <nfc_listener.h>
@@ -19,6 +20,7 @@
 #include <storage/storage.h>
 #include <dir_walk.h>
 #include <path.h>
+#include <dolphin/dolphin.h>
 
 #include "nfc_comparator_icons.h"
 #include "scenes/nfc_comparator_scene.h"
@@ -37,6 +39,7 @@ typedef enum {
    NfcComparatorView_Widget,
    NfcComparatorView_Loading,
    NfcComparatorView_VariableItemList,
+   NfcComparatorView_TextBox,
    NfcComparatorView_Count
 } NfcComparatorViews;
 
@@ -47,6 +50,12 @@ typedef struct {
    FuriString* tmp_output;
 } NfcComparatorFileBrowserView;
 
+/** Text box and its text store */
+typedef struct {
+   TextBox* view;
+   FuriString* store;
+} NfcComparatorTextBoxView;
+
 /** All views used by the NFC Comparator app */
 typedef struct {
    Submenu* submenu;
@@ -55,6 +64,7 @@ typedef struct {
    Widget* widget;
    Loading* loading;
    VariableItemList* variable_item_list;
+   NfcComparatorTextBoxView text_box;
 } NfcComparatorView;
 
 /** All worker instances used by the NFC Comparator app */

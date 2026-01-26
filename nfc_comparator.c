@@ -40,6 +40,9 @@ static NfcComparator* nfc_comparator_alloc() {
 
    nfc_comparator->views.variable_item_list = variable_item_list_alloc();
 
+   nfc_comparator->views.text_box.view = text_box_alloc();
+   nfc_comparator->views.text_box.store = furi_string_alloc();
+
    nfc_comparator->notification_app = furi_record_open(RECORD_NOTIFICATION);
 
    nfc_comparator->workers.compare_checks = nfc_comparator_compare_checks_alloc();
@@ -77,6 +80,10 @@ static NfcComparator* nfc_comparator_alloc() {
       nfc_comparator->view_dispatcher,
       NfcComparatorView_VariableItemList,
       variable_item_list_get_view(nfc_comparator->views.variable_item_list));
+   view_dispatcher_add_view(
+      nfc_comparator->view_dispatcher,
+      NfcComparatorView_TextBox,
+      text_box_get_view(nfc_comparator->views.text_box.view));
 
    return nfc_comparator;
 }
@@ -91,6 +98,7 @@ static void nfc_comparator_free(NfcComparator* nfc_comparator) {
    view_dispatcher_remove_view(nfc_comparator->view_dispatcher, NfcComparatorView_Loading);
    view_dispatcher_remove_view(
       nfc_comparator->view_dispatcher, NfcComparatorView_VariableItemList);
+   view_dispatcher_remove_view(nfc_comparator->view_dispatcher, NfcComparatorView_TextBox);
 
    scene_manager_free(nfc_comparator->scene_manager);
    view_dispatcher_free(nfc_comparator->view_dispatcher);
@@ -103,6 +111,8 @@ static void nfc_comparator_free(NfcComparator* nfc_comparator) {
    widget_free(nfc_comparator->views.widget);
    loading_free(nfc_comparator->views.loading);
    variable_item_list_free(nfc_comparator->views.variable_item_list);
+   text_box_free(nfc_comparator->views.text_box.view);
+   furi_string_free(nfc_comparator->views.text_box.store);
    nfc_comparator_compare_checks_free(nfc_comparator->workers.compare_checks);
    furi_record_close(RECORD_NOTIFICATION);
 
@@ -123,6 +133,8 @@ int32_t nfc_comparator_main(void* p) {
    NfcComparator* nfc_comparator = nfc_comparator_alloc();
 
    nfc_comparator_set_log_level();
+
+   dolphin_deed(DolphinDeedPluginStart);
 
    Gui* gui = furi_record_open(RECORD_GUI);
    view_dispatcher_attach_to_gui(
