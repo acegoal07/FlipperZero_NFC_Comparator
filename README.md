@@ -21,11 +21,17 @@ As i know these firmwares are supported and working if you know any more please 
   >  - UID
   >  - UID length
   >  - Protocol
-  >  - NFC data
+  >  - NFC data (This is only available when comparing two digital NFC cards)
 - Finder Menu:
   - Physical NFC card finder:
   > This features searches your saved NFC cards searching for a match for the physical card you are scanning then displaying the path to the saved NFC card that it finds
   - Digital NFC card finder:
-  > This features searches your saved NFC cards searching for a match for the digital NFC card you have chosen ignoring the one you have chosen to compare against then displaying the path to the saved NFC card that it finds
+  > This features searches your saved NFC cards searching for a match for the digital NFC card you have chosen ignoring the one you have chosen to compare against then displaying the path to the saved NFC card that it finds. The comparator will also show partial matches found where the UID matches but the NFC data does not but is above an 80% match
   - Settings:
   > Recursive search (enabled by default) this will search all subfolders in the NFC folder for matches
+## Compare support:
+> If you are able to provided example NFC files for unsupported cards please open a feature request so support can be worked on this will help improve the tool for everyone
+- Mifara Classic - Full support - Thanks to the work of <a href="https://github.com/yoan8306" target="_blank">yoan8306</a>
+- Mifare Ultralight - Working progress - In need of example NFC files for testing
+- ST25TB - Working progress - In need of example NFC files for testing
+- Felica - Working progress - In need of example NFC files for testing

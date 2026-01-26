@@ -34,7 +34,7 @@ void nfc_comparator_main_menu_scene_on_enter(void* context) {
       nfc_comparator_main_menu_menu_callback,
       nfc_comparator);
 
-   submenu_add_item(nfc_comparator->views.submenu, "By acegoal07", 0, NULL, NULL);
+   submenu_add_item(nfc_comparator->views.submenu, "By acegoal07, yoan8306", 0, NULL, NULL);
 
    view_dispatcher_switch_to_view(nfc_comparator->view_dispatcher, NfcComparatorView_Submenu);
 }

@@ -53,11 +53,13 @@ bool nfc_comparator_compare_menu_scene_on_event(void* context, SceneManagerEvent
    if(event.type == SceneManagerEventTypeCustom) {
       switch(event.event) {
       case NfcComparatorMainMenu_Physical:
-         scene_manager_next_scene(nfc_comparator->scene_manager, NfcComparatorScene_PhysicalCompareScan);
+         scene_manager_next_scene(
+            nfc_comparator->scene_manager, NfcComparatorScene_PhysicalCompareScan);
          consumed = true;
          break;
       case NfcComparatorMainMenu_Digital:
-         scene_manager_next_scene(nfc_comparator->scene_manager, NfcComparatorScene_DigitalCompareScan);
+         scene_manager_next_scene(
+            nfc_comparator->scene_manager, NfcComparatorScene_DigitalCompareScan);
          consumed = true;
          break;
       case NfcComparatorMainMenu_SelectNfcCard:
