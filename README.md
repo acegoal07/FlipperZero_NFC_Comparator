@@ -31,7 +31,11 @@ As i know these firmwares are supported and working if you know any more please 
   > Recursive search (enabled by default) this will search all subfolders in the NFC folder for matches
 ## Compare support:
 > If you are able to provided example NFC files for unsupported cards please open a feature request so support can be worked on this will help improve the tool for everyone
-- Mifara Classic - Full support - Thanks to the work of <a href="https://github.com/yoan8306" target="_blank">yoan8306</a>
-- Mifare Ultralight - Working progress - In need of example NFC files for testing
-- ST25TB - Working progress - In need of example NFC files for testing
-- Felica - Working progress - In need of example NFC files for testing
+
+| Type              | Status           | Notes                                                                                    |
+| ----------------- | ---------------- | ---------------------------------------------------------------------------------------- |
+| Mifare Classic    | Full Support     | Thanks to the work of <a href="https://github.com/yoan8306" target="_blank">yoan8306</a> |
+| Mifare Ultralight | Full Support     |                                                                                          |
+| ST25TB            | Working progress | In need of example NFC files for testing                                                 |
+| Felica            | Working progress | In need of example NFC files for testing                                                 |
+| Type 4 Tags       | Full Support     |                                                                                          |
