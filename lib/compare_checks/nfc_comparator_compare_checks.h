@@ -6,6 +6,7 @@
 #include <nfc/protocols/st25tb/st25tb.h>
 #include <nfc/protocols/mf_ultralight/mf_ultralight.h>
 #include <nfc/protocols/felica/felica.h>
+#include <nfc/protocols/type_4_tag/type_4_tag.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,7 +33,7 @@ typedef struct {
    bool protocol;
    bool nfc_data;
    NfcCompareChecksType type;
-   uint16_t diff_blocks[64];
+   uint16_t diff_blocks[2048];
    uint16_t diff_count;
    uint16_t total_blocks;
 } NfcComparatorCompareChecks;

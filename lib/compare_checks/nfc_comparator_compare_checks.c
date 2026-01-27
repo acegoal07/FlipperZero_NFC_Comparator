@@ -100,8 +100,47 @@ void nfc_comparator_compare_checks_compare_cards(
 
       // COMPARE LOGIC
       if(!checks->nfc_data && checks->protocol) {
+         switch(nfc_device_get_protocol(card1)) {
+         // Felica
+         case NfcProtocolFelica: {
+            break; // Not implemented
+            const FelicaData* data1 = nfc_device_get_data(card1, NfcProtocolFelica);
+            const FelicaData* data2 = nfc_device_get_data(card2, NfcProtocolFelica);
+
+            uint8_t block_count = data1->blocks_total;
+            checks->total_blocks = data1->blocks_total;
+
+            for(uint8_t i = 0; i < block_count && i < 128; i++) {
+               if(memcmp(&data1->data.dump[i], &data2->data.dump[i], sizeof(data1->data.dump[i])) !=
+                  0) {
+                  checks->diff_blocks[checks->diff_count] = i;
+                  checks->diff_count++;
+               }
+            }
+            break;
+         }
+
+         // Mifare Ultralight
+         case NfcProtocolMfUltralight: {
+            const MfUltralightData* data1 = nfc_device_get_data(card1, NfcProtocolMfUltralight);
+            const MfUltralightData* data2 = nfc_device_get_data(card2, NfcProtocolMfUltralight);
+
+            MfUltralightType type = data1->type;
+            uint16_t block_count = mf_ultralight_get_pages_total(type);
+            checks->total_blocks = block_count;
+
+            for(uint16_t i = 0; i < block_count && i < 231; i++) {
+               if(memcmp(data1->page[i].data, data2->page[i].data, sizeof(data1->page[i].data)) !=
+                  0) {
+                  checks->diff_blocks[checks->diff_count] = i;
+                  checks->diff_count++;
+               }
+            }
+            break;
+         }
+
          // Mifara Classic - @yoan8306
-         if(nfc_device_get_protocol(card1) == NfcProtocolMfClassic) {
+         case NfcProtocolMfClassic: {
             const MfClassicData* data1 = nfc_device_get_data(card1, NfcProtocolMfClassic);
             const MfClassicData* data2 = nfc_device_get_data(card2, NfcProtocolMfClassic);
 
@@ -118,63 +157,52 @@ void nfc_comparator_compare_checks_compare_cards(
                   checks->diff_count++;
                }
             }
+            break;
          }
 
-         // Untested logic due to lack missing access to NFC files to test
-
-         // Mifare Ultralight
-         // else if(nfc_device_get_protocol(card1) == NfcProtocolMfUltralight) {
-         //    const MfUltralightData* data1 = nfc_device_get_data(card1, NfcProtocolMfUltralight);
-         //    const MfUltralightData* data2 = nfc_device_get_data(card2, NfcProtocolMfUltralight);
-
-         //    MfUltralightType type = data1->type;
-         //    uint16_t block_count = mf_ultralight_get_pages_total(type);
-         //    checks->total_blocks = block_count;
-
-         //    for(uint16_t i = 0; i < block_count && i < 48; i++) {
-         //       if(memcmp(data1->page[i].data, data2->page[i].data, sizeof(data1->page[i].data)) !=
-         //          0) {
-         //          checks->diff_blocks[checks->diff_count] = i;
-         //          checks->diff_count++;
-         //       }
-         //    }
-         // }
-
          // ST25TB
-         // else if(nfc_device_get_protocol(card1) == NfcProtocolSt25tb) {
-         //    const St25tbData* data1 = nfc_device_get_data(card1, NfcProtocolSt25tb);
-         //    const St25tbData* data2 = nfc_device_get_data(card2, NfcProtocolSt25tb);
+         case NfcProtocolSt25tb: {
+            break; // Not implemented
+            const St25tbData* data1 = nfc_device_get_data(card1, NfcProtocolSt25tb);
+            const St25tbData* data2 = nfc_device_get_data(card2, NfcProtocolSt25tb);
 
-         //    St25tbType type = data1->type;
-         //    uint8_t block_count = st25tb_get_block_count(type);
-         //    checks->total_blocks = block_count;
+            St25tbType type = data1->type;
+            uint8_t block_count = st25tb_get_block_count(type);
+            checks->total_blocks = block_count;
 
-         //    for(uint8_t i = 0; i < block_count && i < 128; i++) {
-         //       if(memcmp(&data1->blocks[i], &data2->blocks[i], sizeof(data1->blocks[i])) != 0) {
-         //          checks->diff_blocks[checks->diff_count] = i;
-         //          checks->diff_count++;
-         //       }
-         //    }
-         // }
+            for(uint8_t i = 0; i < block_count && i < 128; i++) {
+               if(memcmp(&data1->blocks[i], &data2->blocks[i], sizeof(data1->blocks[i])) != 0) {
+                  checks->diff_blocks[checks->diff_count] = i;
+                  checks->diff_count++;
+               }
+            }
+            break;
+         }
 
-         // Felica
-         // else if(nfc_device_get_protocol(card1) == NfcProtocolFelica) {
-         //    const FelicaData* data1 =
-         //       felica_get_base_data(nfc_device_get_data(card1, NfcProtocolFelica));
-         //    const FelicaData* data2 =
-         //       felica_get_base_data(nfc_device_get_data(card2, NfcProtocolFelica));
+         // Type 4 Tag
+         case NfcProtocolType4Tag: {
+            const Type4TagData* data1 = nfc_device_get_data(card1, NfcProtocolType4Tag);
+            const Type4TagData* data2 = nfc_device_get_data(card2, NfcProtocolType4Tag);
 
-         //    uint8_t block_count = data1->blocks_total;
-         //    checks->total_blocks = data1->blocks_total;
+            uint32_t block_count = simple_array_get_count(data1->ndef_data);
+            checks->total_blocks = block_count;
 
-         //    for(uint8_t i = 0; i < block_count && i < 128; i++) {
-         //       if(memcmp(&data1->data.dump[i], &data2->data.dump[i], sizeof(data1->data.dump[i])) !=
-         //          0) {
-         //          checks->diff_blocks[checks->diff_count] = i;
-         //          checks->diff_count++;
-         //       }
-         //    }
-         // }
+            const uint8_t* block1 = (const uint8_t*)simple_array_cget(data1->ndef_data, 0);
+            const uint8_t* block2 = (const uint8_t*)simple_array_cget(data2->ndef_data, 0);
+
+            for(size_t i = 0; i < block_count && i < 2048; i++) {
+               if(block1[i] != block2[i]) {
+                  checks->diff_blocks[checks->diff_count] = i;
+                  checks->diff_count++;
+               }
+            }
+            break;
+         }
+
+         // All the others that are not supported or implemented yet
+         default:
+            break;
+         }
       }
    }
 }
