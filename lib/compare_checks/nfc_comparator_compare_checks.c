@@ -103,16 +103,17 @@ void nfc_comparator_compare_checks_compare_cards(
          switch(nfc_device_get_protocol(card1)) {
          // Felica
          case NfcProtocolFelica: {
-            break; // Not implemented
             const FelicaData* data1 = nfc_device_get_data(card1, NfcProtocolFelica);
             const FelicaData* data2 = nfc_device_get_data(card2, NfcProtocolFelica);
 
             uint8_t block_count = data1->blocks_total;
             checks->total_blocks = data1->blocks_total;
 
-            for(uint8_t i = 0; i < block_count && i < 128; i++) {
-               if(memcmp(&data1->data.dump[i], &data2->data.dump[i], sizeof(data1->data.dump[i])) !=
-                  0) {
+            for(size_t i = 0; i < block_count && i < FELICA_STANDARD_MAX_BLOCK_COUNT; i++) {
+               const uint8_t* block1 = &data1->data.dump[i * 18];
+               const uint8_t* block2 = &data2->data.dump[i * 18];
+
+               if(memcmp(block1, block2, FELICA_DATA_BLOCK_SIZE) != 0) {
                   checks->diff_blocks[checks->diff_count] = i;
                   checks->diff_count++;
                }
@@ -120,7 +121,7 @@ void nfc_comparator_compare_checks_compare_cards(
             break;
          }
 
-         // Mifare Ultralight
+         // NTAG/Mifare Ultralight
          case NfcProtocolMfUltralight: {
             const MfUltralightData* data1 = nfc_device_get_data(card1, NfcProtocolMfUltralight);
             const MfUltralightData* data2 = nfc_device_get_data(card2, NfcProtocolMfUltralight);
@@ -129,9 +130,8 @@ void nfc_comparator_compare_checks_compare_cards(
             uint16_t block_count = mf_ultralight_get_pages_total(type);
             checks->total_blocks = block_count;
 
-            for(uint16_t i = 0; i < block_count && i < 231; i++) {
-               if(memcmp(data1->page[i].data, data2->page[i].data, sizeof(data1->page[i].data)) !=
-                  0) {
+            for(size_t i = 0; i < block_count && i < MF_ULTRALIGHT_MAX_PAGE_NUM; i++) {
+               if(memcmp(data1->page[i].data, data2->page[i].data, MF_ULTRALIGHT_PAGE_SIZE) != 0) {
                   checks->diff_blocks[checks->diff_count] = i;
                   checks->diff_count++;
                }
@@ -149,10 +149,8 @@ void nfc_comparator_compare_checks_compare_cards(
 
             checks->total_blocks = block_count;
 
-            for(uint16_t i = 0; i < block_count && i < 64; i++) {
-               if(memcmp(
-                     data1->block[i].data, data2->block[i].data, sizeof(data1->block[i].data)) !=
-                  0) {
+            for(size_t i = 0; i < block_count && i < MF_CLASSIC_TOTAL_BLOCKS_MAX; i++) {
+               if(memcmp(data1->block[i].data, data2->block[i].data, MF_CLASSIC_BLOCK_SIZE) != 0) {
                   checks->diff_blocks[checks->diff_count] = i;
                   checks->diff_count++;
                }
@@ -170,8 +168,8 @@ void nfc_comparator_compare_checks_compare_cards(
             uint8_t block_count = st25tb_get_block_count(type);
             checks->total_blocks = block_count;
 
-            for(uint8_t i = 0; i < block_count && i < 128; i++) {
-               if(memcmp(&data1->blocks[i], &data2->blocks[i], sizeof(data1->blocks[i])) != 0) {
+            for(size_t i = 0; i < block_count && i < ST25TB_MAX_BLOCKS; i++) {
+               if(memcmp(&data1->blocks[i], &data2->blocks[i], ST25TB_BLOCK_SIZE) != 0) {
                   checks->diff_blocks[checks->diff_count] = i;
                   checks->diff_count++;
                }
@@ -190,8 +188,36 @@ void nfc_comparator_compare_checks_compare_cards(
             const uint8_t* block1 = (const uint8_t*)simple_array_cget(data1->ndef_data, 0);
             const uint8_t* block2 = (const uint8_t*)simple_array_cget(data2->ndef_data, 0);
 
-            for(size_t i = 0; i < block_count && i < 2048; i++) {
+            for(size_t i = 0; i < block_count && i < TYPE_4_TAG_MF_DESFIRE_NDEF_SIZE; i++) {
                if(block1[i] != block2[i]) {
+                  checks->diff_blocks[checks->diff_count] = i;
+                  checks->diff_count++;
+               }
+            }
+            break;
+         }
+
+         // ISO15693-3
+         case NfcProtocolIso15693_3: {
+            const Iso15693_3Data* data1 = nfc_device_get_data(card1, NfcProtocolIso15693_3);
+            const Iso15693_3Data* data2 = nfc_device_get_data(card2, NfcProtocolIso15693_3);
+            const uint8_t data1_block_size = data1->system_info.block_size;
+            const uint8_t data2_block_size = data2->system_info.block_size;
+
+            if(data1_block_size != data2_block_size) {
+               break;
+            }
+
+            uint16_t block_count = data1->system_info.block_count;
+            checks->total_blocks = block_count;
+
+            for(size_t i = 0; i < block_count && i < 256; i++) {
+               const uint8_t* block1 =
+                  (const uint8_t*)simple_array_cget(data1->block_data, i * data1_block_size);
+               const uint8_t* block2 =
+                  (const uint8_t*)simple_array_cget(data2->block_data, i * data2_block_size);
+
+               if(memcmp(block1, block2, data1_block_size) != 0) {
                   checks->diff_blocks[checks->diff_count] = i;
                   checks->diff_count++;
                }
