@@ -32,10 +32,13 @@ As i know these firmwares are supported and working if you know any more please 
 ## Compare support:
 > If you are able to provided example NFC files for unsupported cards please open a feature request so support can be worked on this will help improve the tool for everyone
 
-| Type              | Status           | Notes                                                                                    |
-| ----------------- | ---------------- | ---------------------------------------------------------------------------------------- |
-| Mifare Classic    | Full Support     | Thanks to the work of <a href="https://github.com/yoan8306" target="_blank">yoan8306</a> |
-| Mifare Ultralight | Full Support     |                                                                                          |
-| ST25TB            | Working progress | In need of example NFC files for testing                                                 |
-| Felica            | Working progress | In need of example NFC files for testing                                                 |
-| Type 4 Tags       | Full Support     |                                                                                          |
+| Type                   | Status           | Notes                                                                                    |
+| ---------------------- | ---------------- | ---------------------------------------------------------------------------------------- |
+| Mifare Classic         | Full Support     | Thanks to the work of <a href="https://github.com/yoan8306" target="_blank">yoan8306</a> |
+| NTAG/Mifare Ultralight | Full Support     |                                                                                          |
+| ST25TB                 | Working progress | In need of example NFC files for testing                                                 |
+| Felica                 | Full Support     |                                                                                          |
+| Type 4 Tags            | Full Support     |                                                                                          |
+| ISO15693-3             | Full Support     |                                                                                          |
+
+> For types that are working progress or not in the list this means that the comparator will only be able to compare the UID, UID length and protocol but not the NFC data in-depth meaning it may show false positives if two cards share the same UID or have some matching data but are not identical cards
