@@ -28,33 +28,29 @@ static void nfc_comparator_digital_compare_scan_menu_callback(void* context) {
       return;
    }
 
-   nfc_comparator_compare_checks_compare_cards(
-      nfc_comparator->workers.compare_checks, nfc_card_1, nfc_card_2, true);
+   nfc_comparator_compare_checks_set_type(
+      nfc_comparator->workers.compare_checks, NfcCompareChecksType_Deep);
 
-   // Give points based on similarity percentage
+   nfc_comparator_compare_checks_compare_cards(
+      nfc_comparator->workers.compare_checks, nfc_card_1, nfc_card_2);
+
    if(nfc_comparator->workers.compare_checks->total_blocks > 0) {
       uint16_t total = nfc_comparator->workers.compare_checks->total_blocks;
       uint16_t diff = nfc_comparator->workers.compare_checks->diff_count;
       uint8_t percentage = ((total - diff) * 100) / total;
 
       if(percentage == 100) {
-         // Perfect match = 3 points
          dolphin_deed(DolphinDeedNfcReadSuccess);
          dolphin_deed(DolphinDeedNfcSave);
       } else if(percentage >= 95) {
-         // Very high similarity (95-99%) = 2 points
          dolphin_deed(DolphinDeedNfcReadSuccess);
       } else if(percentage >= 80) {
-         // High similarity (80-94%) = 1 point
          dolphin_deed(DolphinDeedNfcRead);
       }
-      // Less than 80% = 0 points
    } else if(nfc_comparator->workers.compare_checks->nfc_data) {
-      // Perfect match (non-Mifare cards) = 3 points
       dolphin_deed(DolphinDeedNfcReadSuccess);
       dolphin_deed(DolphinDeedNfcSave);
    } else {
-      // Basic comparison = 1 point
       dolphin_deed(DolphinDeedNfcRead);
    }
 
@@ -62,9 +58,6 @@ static void nfc_comparator_digital_compare_scan_menu_callback(void* context) {
    nfc_device_free(nfc_card_2);
 
    furi_string_reset(nfc_comparator->views.file_browser.tmp_output);
-
-   nfc_comparator_compare_checks_set_type(
-      nfc_comparator->workers.compare_checks, NfcCompareChecksType_Digital);
 
    scene_manager_next_scene(nfc_comparator->scene_manager, NfcComparatorScene_CompareResults);
 }
@@ -111,10 +104,6 @@ void nfc_comparator_digital_compare_scan_scene_on_exit(void* context) {
       furi_string_swap(
          nfc_comparator->views.file_browser.output, nfc_comparator->views.file_browser.tmp_output);
       furi_string_reset(nfc_comparator->views.file_browser.tmp_output);
-   }
-   if(nfc_comparator_compare_checks_get_type(nfc_comparator->workers.compare_checks) ==
-      NfcCompareChecksType_Undefined) {
-      nfc_comparator_compare_checks_reset(nfc_comparator->workers.compare_checks);
    }
    file_browser_stop(nfc_comparator->views.file_browser.view);
    nfc_comparator_led_worker_stop(nfc_comparator->notification_app);

@@ -49,11 +49,12 @@ static int32_t nfc_comparator_reader_worker_task(void* context) {
             worker->protocol[0],
             (NfcDeviceData*)nfc_poller_get_data(nfc_poller));
          nfc_poller_free(nfc_poller);
+
          break;
       }
       case NfcComparatorReaderWorkerState_Comparing: {
          nfc_comparator_compare_checks_compare_cards(
-            worker->compare_checks, worker->scanned_nfc_card, worker->loaded_nfc_card, false);
+            worker->compare_checks, worker->scanned_nfc_card, worker->loaded_nfc_card);
 
          nfc_device_free(worker->scanned_nfc_card);
          worker->scanned_nfc_card = NULL;
@@ -73,7 +74,9 @@ static int32_t nfc_comparator_reader_worker_task(void* context) {
 NfcComparatorReaderWorker*
    nfc_comparator_reader_worker_alloc(NfcComparatorCompareChecks* compare_checks) {
    NfcComparatorReaderWorker* worker = calloc(1, sizeof(NfcComparatorReaderWorker));
-   if(!worker) return NULL;
+   if(!worker) {
+      return NULL;
+   }
    worker->nfc = nfc_alloc();
    if(!worker->nfc) {
       free(worker);
@@ -140,7 +143,9 @@ bool nfc_comparator_reader_worker_set_loaded_nfc_card(
       worker->loaded_nfc_card = NULL;
    }
    worker->loaded_nfc_card = nfc_device_alloc();
-   if(!worker->loaded_nfc_card) return false;
+   if(!worker->loaded_nfc_card) {
+      return false;
+   }
    if(!nfc_device_load(worker->loaded_nfc_card, path_to_nfc_card)) {
       nfc_device_free(worker->loaded_nfc_card);
       worker->loaded_nfc_card = NULL;

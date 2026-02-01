@@ -15,10 +15,12 @@ static void nfc_comparator_digital_finder_scan_menu_callback(void* context) {
       return;
    }
 
+   nfc_comparator_compare_checks_set_type(
+      nfc_comparator->workers.compare_checks, NfcCompareChecksType_Deep);
+
    nfc_comparator_finder_worker_compare_cards(
       nfc_comparator->workers.compare_checks,
       nfc_card_1,
-      true,
       &nfc_comparator->workers.finder_settings,
       nfc_comparator->views.file_browser.output);
 
@@ -27,9 +29,6 @@ static void nfc_comparator_digital_finder_scan_menu_callback(void* context) {
    furi_string_swap(
       nfc_comparator->views.file_browser.output, nfc_comparator->views.file_browser.tmp_output);
    furi_string_reset(nfc_comparator->views.file_browser.tmp_output);
-
-   nfc_comparator_compare_checks_set_type(
-      nfc_comparator->workers.compare_checks, NfcCompareChecksType_Digital);
 
    scene_manager_next_scene(nfc_comparator->scene_manager, NfcComparatorScene_FinderResults);
 }
@@ -77,12 +76,6 @@ void nfc_comparator_digital_finder_scan_scene_on_exit(void* context) {
          nfc_comparator->views.file_browser.output, nfc_comparator->views.file_browser.tmp_output);
       furi_string_reset(nfc_comparator->views.file_browser.tmp_output);
    }
-
-   if(nfc_comparator_compare_checks_get_type(nfc_comparator->workers.compare_checks) ==
-      NfcCompareChecksType_Undefined) {
-      nfc_comparator_compare_checks_reset(nfc_comparator->workers.compare_checks);
-   }
-
    file_browser_stop(nfc_comparator->views.file_browser.view);
    nfc_comparator_led_worker_stop(nfc_comparator->notification_app);
 }

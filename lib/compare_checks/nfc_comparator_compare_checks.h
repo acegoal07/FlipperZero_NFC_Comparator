@@ -18,9 +18,9 @@ extern "C" {
  * @brief Type of NFC comparison being performed.
  */
 typedef enum {
-   NfcCompareChecksType_Digital, /**< Comparison between two digital NFC cards */
-   NfcCompareChecksType_Physical, /**< Comparison between a physical and a digital NFC card */
-   NfcCompareChecksType_Undefined /**< Comparison type is undefined */
+   NfcCompareChecksType_Shallow,
+   NfcCompareChecksType_Deep,
+   NfcCompareChecksType_Undefined
 } NfcCompareChecksType;
 
 /**
@@ -28,12 +28,12 @@ typedef enum {
  * @brief Structure holding the results of NFC comparison checks.
  */
 typedef struct {
+   NfcCompareChecksType compare_type;
    FuriString* nfc_card_path;
    bool uid;
    bool uid_length;
    bool protocol;
    bool nfc_data;
-   NfcCompareChecksType type;
    uint16_t diff_blocks[2048];
    uint16_t diff_count;
    uint16_t total_blocks;
@@ -67,14 +67,6 @@ void nfc_comparator_compare_checks_copy(
 void nfc_comparator_compare_checks_reset(NfcComparatorCompareChecks* checks);
 
 /**
- * @brief Get the comparison type.
- * @param checks Pointer to the structure.
- * @return The comparison type.
- */
-NfcCompareChecksType
-   nfc_comparator_compare_checks_get_type(const NfcComparatorCompareChecks* checks);
-
-/**
  * @brief Set the comparison type.
  * @param checks Pointer to the structure.
  * @param type The type to set.
@@ -93,8 +85,7 @@ void nfc_comparator_compare_checks_set_type(
 void nfc_comparator_compare_checks_compare_cards(
    NfcComparatorCompareChecks* checks,
    const struct NfcDevice* card1,
-   const struct NfcDevice* card2,
-   bool check_data);
+   const struct NfcDevice* card2);
 
 #ifdef __cplusplus
 }
