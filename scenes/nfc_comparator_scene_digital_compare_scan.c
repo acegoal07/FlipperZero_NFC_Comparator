@@ -34,6 +34,8 @@ static void nfc_comparator_digital_compare_scan_menu_callback(void* context) {
    nfc_comparator_compare_checks_compare_cards(
       nfc_comparator->workers.compare_checks, nfc_card_1, nfc_card_2);
 
+   nfc_comparator_led_worker_stop(nfc_comparator->notification_app);
+
    if(nfc_comparator->workers.compare_checks->total_blocks > 0) {
       uint16_t total = nfc_comparator->workers.compare_checks->total_blocks;
       uint16_t diff = nfc_comparator->workers.compare_checks->diff_count;
@@ -58,6 +60,9 @@ static void nfc_comparator_digital_compare_scan_menu_callback(void* context) {
    nfc_device_free(nfc_card_2);
 
    furi_string_reset(nfc_comparator->views.file_browser.tmp_output);
+
+   nfc_comparator_led_worker_start(
+      nfc_comparator->notification_app, NfcComparatorLedState_Complete);
 
    scene_manager_next_scene(nfc_comparator->scene_manager, NfcComparatorScene_CompareResults);
 }

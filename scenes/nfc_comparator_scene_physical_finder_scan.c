@@ -57,6 +57,10 @@ bool nfc_comparator_physical_finder_scan_scene_on_event(void* context, SceneMana
          if(!force_quit) {
             nfc_comparator_finder_worker_stop(nfc_comparator->workers.finder_worker);
 
+            nfc_comparator_led_worker_stop(nfc_comparator->notification_app);
+            nfc_comparator_led_worker_start(
+               nfc_comparator->notification_app, NfcComparatorLedState_Complete);
+               
             scene_manager_next_scene(
                nfc_comparator->scene_manager, NfcComparatorScene_FinderResults);
          } else {
