@@ -53,7 +53,7 @@ static int32_t nfc_comparator_finder_worker_task(void* context) {
       }
       case NfcComparatorFinderWorkerState_Finding: {
          nfc_comparator_finder_worker_compare_cards(
-            worker->compare_checks, worker->scanned_nfc_card, false, worker->settings, NULL);
+            worker->compare_checks, worker->scanned_nfc_card, worker->settings, NULL);
          worker->state = NfcComparatorFinderWorkerState_Stopped;
          break;
       }
@@ -142,7 +142,6 @@ NfcComparatorFinderWorkerState*
 void nfc_comparator_finder_worker_compare_cards(
    NfcComparatorCompareChecks* compare_checks,
    NfcDevice* nfc_card_1,
-   bool check_data,
    NfcComparatorFinderWorkerSettings* settings,
    FuriString* nfc_card_path) {
    furi_assert(nfc_card_1);
@@ -166,7 +165,7 @@ void nfc_comparator_finder_worker_compare_cards(
          if(furi_string_cmpi_str(ext, ".nfc") == 0) {
             if(nfc_device_load(nfc_card_2, furi_string_get_cstr(compare_checks->nfc_card_path))) {
                nfc_comparator_compare_checks_compare_cards(
-                  compare_checks, nfc_card_1, nfc_card_2, check_data);
+                  compare_checks, nfc_card_1, nfc_card_2);
 
                if(compare_checks->uid && compare_checks->uid_length && compare_checks->protocol) {
                   if(compare_checks->diff_count == 0) {

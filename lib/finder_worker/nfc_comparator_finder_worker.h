@@ -100,7 +100,6 @@ NfcComparatorFinderWorkerState*
 void nfc_comparator_finder_worker_compare_cards(
    NfcComparatorCompareChecks* compare_checks,
    NfcDevice* nfc_card_1,
-   bool check_data,
    NfcComparatorFinderWorkerSettings* settings,
    FuriString* nfc_card_path);
 

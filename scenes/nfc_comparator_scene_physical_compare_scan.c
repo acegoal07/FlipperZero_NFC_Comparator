@@ -10,6 +10,9 @@ void nfc_comparator_physical_compare_scan_scene_on_enter(void* context) {
    popup_set_context(nfc_comparator->views.popup, nfc_comparator);
    view_dispatcher_switch_to_view(nfc_comparator->view_dispatcher, NfcComparatorView_Popup);
 
+   nfc_comparator_compare_checks_set_type(
+      nfc_comparator->workers.compare_checks, NfcCompareChecksType_Shallow);
+
    nfc_comparator->workers.reader_worker =
       nfc_comparator_reader_worker_alloc(nfc_comparator->workers.compare_checks);
 
@@ -61,11 +64,10 @@ bool nfc_comparator_physical_compare_scan_scene_on_event(void* context, SceneMan
          if(!force_quit) {
             nfc_comparator_reader_worker_stop(nfc_comparator->workers.reader_worker);
 
-            nfc_comparator_compare_checks_set_type(
-               nfc_comparator->workers.compare_checks, NfcCompareChecksType_Physical);
-
             scene_manager_next_scene(
                nfc_comparator->scene_manager, NfcComparatorScene_CompareResults);
+         } else {
+            nfc_comparator_compare_checks_reset(nfc_comparator->workers.compare_checks);
          }
          consumed = true;
          break;
@@ -81,10 +83,6 @@ void nfc_comparator_physical_compare_scan_scene_on_exit(void* context) {
    furi_assert(context);
    NfcComparator* nfc_comparator = context;
    popup_reset(nfc_comparator->views.popup);
-   if(nfc_comparator_compare_checks_get_type(nfc_comparator->workers.compare_checks) ==
-      NfcCompareChecksType_Undefined) {
-      nfc_comparator_compare_checks_reset(nfc_comparator->workers.compare_checks);
-   }
    nfc_comparator_led_worker_stop(nfc_comparator->notification_app);
    nfc_comparator_reader_worker_free(nfc_comparator->workers.reader_worker);
 }

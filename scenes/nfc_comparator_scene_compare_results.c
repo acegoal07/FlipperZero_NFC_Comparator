@@ -15,8 +15,8 @@ void nfc_comparator_compare_results_scene_on_enter(void* context) {
 
    furi_string_reset(nfc_comparator->views.text_box.store);
 
-   switch(nfc_comparator->workers.compare_checks->type) {
-   case NfcCompareChecksType_Physical:
+   switch(nfc_comparator->workers.compare_checks->compare_type) {
+   case NfcCompareChecksType_Shallow:
       furi_string_printf(
          nfc_comparator->views.text_box.store,
          "UID: %s\nUID length: %s\nProtocol: %s",
@@ -24,7 +24,7 @@ void nfc_comparator_compare_results_scene_on_enter(void* context) {
          match_str(nfc_comparator->workers.compare_checks->uid_length),
          match_str(nfc_comparator->workers.compare_checks->protocol));
       break;
-   case NfcCompareChecksType_Digital:
+   case NfcCompareChecksType_Deep:
       furi_string_printf(
          nfc_comparator->views.text_box.store,
          "UID: %s\nUID length: %s\nProtocol: %s\nNFC Data: %s",

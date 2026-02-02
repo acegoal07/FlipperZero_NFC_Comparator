@@ -10,14 +10,14 @@ void nfc_comparator_finder_results_scene_on_enter(void* context) {
    furi_string_reset(nfc_comparator->views.text_box.store);
 
    bool match = false;
-   switch(nfc_comparator->workers.compare_checks->type) {
-   case NfcCompareChecksType_Digital:
+   switch(nfc_comparator->workers.compare_checks->compare_type) {
+   case NfcCompareChecksType_Deep:
       match = nfc_comparator->workers.compare_checks->uid &&
               nfc_comparator->workers.compare_checks->uid_length &&
               nfc_comparator->workers.compare_checks->protocol &&
               nfc_comparator->workers.compare_checks->nfc_data;
       break;
-   case NfcCompareChecksType_Physical:
+   case NfcCompareChecksType_Shallow:
       match = nfc_comparator->workers.compare_checks->uid &&
               nfc_comparator->workers.compare_checks->uid_length &&
               nfc_comparator->workers.compare_checks->protocol;
