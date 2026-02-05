@@ -156,7 +156,9 @@ void nfc_comparator_finder_worker_compare_cards(
 
       while(dir_walk_read(dir_walk, compare_checks->nfc_card_path, NULL) == DirWalkOK) {
          if(nfc_card_path && furi_string_cmpi(compare_checks->nfc_card_path, nfc_card_path) == 0) {
+            NfcCompareChecksType type = compare_checks->compare_type;
             nfc_comparator_compare_checks_reset(compare_checks);
+            compare_checks->compare_type = type;
             continue;
          }
 
@@ -164,8 +166,7 @@ void nfc_comparator_finder_worker_compare_cards(
 
          if(furi_string_cmpi_str(ext, ".nfc") == 0) {
             if(nfc_device_load(nfc_card_2, furi_string_get_cstr(compare_checks->nfc_card_path))) {
-               nfc_comparator_compare_checks_compare_cards(
-                  compare_checks, nfc_card_1, nfc_card_2);
+               nfc_comparator_compare_checks_compare_cards(compare_checks, nfc_card_1, nfc_card_2);
 
                if(compare_checks->uid && compare_checks->uid_length && compare_checks->protocol) {
                   if(compare_checks->diff_count == 0) {
@@ -176,7 +177,9 @@ void nfc_comparator_finder_worker_compare_cards(
                      nfc_comparator_compare_checks_copy(tmp_compare_checks, compare_checks);
                   }
                } else {
+                  NfcCompareChecksType type = compare_checks->compare_type;
                   nfc_comparator_compare_checks_reset(compare_checks);
+                  compare_checks->compare_type = type;
                }
             }
          }

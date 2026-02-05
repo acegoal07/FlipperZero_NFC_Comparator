@@ -262,6 +262,6 @@ void nfc_comparator_compare_checks_compare_cards(
          default:
             break;
          }
-      }
+      } 
    }
 }
