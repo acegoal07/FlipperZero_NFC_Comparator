@@ -11,12 +11,30 @@ void nfc_comparator_data_breakdown_scene_on_enter(void* context) {
    uint16_t similar = total - diff;
    uint8_t percentage = (similar * 100) / total;
 
+   const char* unit_name;
+   switch(nfc_comparator->workers.compare_checks->diff_unit) {
+   case NfcCompareChecksComparedDataType_Blocks:
+      unit_name = "blocks";
+      break;
+   case NfcCompareChecksComparedDataType_Pages:
+      unit_name = "pages";
+      break;
+   case NfcCompareChecksComparedDataType_Bytes:
+      unit_name = "bytes";
+      break;
+   default:
+      unit_name = "units";
+      break;
+   }
+
    furi_string_cat_printf(
       nfc_comparator->views.text_box.store,
-      "Similarity:\n%u%% (%u/%u blocks match)\n\nDifferent blocks (%u):\n",
+      "Similarity:\n%u%% (%u/%u %s match)\n\nDifferent %s (%u):\n",
       percentage,
       similar,
       total,
+      unit_name,
+      unit_name,
       diff);
 
    for(int i = 0; i < diff; i++) {
