@@ -2,7 +2,7 @@
 
 NfcComparatorCompareChecks* nfc_comparator_compare_checks_alloc() {
    NfcComparatorCompareChecks* checks = malloc(sizeof(NfcComparatorCompareChecks));
-   if(!checks) return NULL;
+   furi_assert(checks);
 
    checks->compare_type = NfcCompareChecksType_Undefined;
    checks->nfc_card_path = furi_string_alloc();
@@ -10,20 +10,25 @@ NfcComparatorCompareChecks* nfc_comparator_compare_checks_alloc() {
    checks->uid_length = false;
    checks->protocol = false;
    checks->nfc_data = false;
+   checks->diff_unit = NfcCompareChecksComparedDataType_Unkown;
+   memset(checks->diff_blocks, 0, sizeof(checks->diff_blocks));
+   checks->diff_count = 0;
+   checks->total_blocks = 0;
 
    return checks;
 }
 
 void nfc_comparator_compare_checks_free(NfcComparatorCompareChecks* checks) {
-   if(checks) {
-      furi_string_free(checks->nfc_card_path);
-      free(checks);
-   }
+   furi_assert(checks);
+   furi_string_free(checks->nfc_card_path);
+   free(checks);
 }
 
 void nfc_comparator_compare_checks_copy(
    NfcComparatorCompareChecks* destination,
    NfcComparatorCompareChecks* data) {
+   furi_assert(destination);
+   furi_assert(data);
    destination->compare_type = data->compare_type;
    furi_string_reset(destination->nfc_card_path);
    furi_string_set(destination->nfc_card_path, data->nfc_card_path);
@@ -31,29 +36,31 @@ void nfc_comparator_compare_checks_copy(
    destination->uid_length = data->uid_length;
    destination->protocol = data->protocol;
    destination->nfc_data = data->nfc_data;
+   destination->diff_unit = data->diff_unit;
    destination->total_blocks = data->total_blocks;
    destination->diff_count = data->diff_count;
    memcpy(destination->diff_blocks, data->diff_blocks, sizeof(destination->diff_blocks));
 }
 
 void nfc_comparator_compare_checks_reset(NfcComparatorCompareChecks* checks) {
-   if(checks) {
-      checks->compare_type = NfcCompareChecksType_Undefined;
-      furi_string_reset(checks->nfc_card_path);
-      checks->uid = false;
-      checks->uid_length = false;
-      checks->protocol = false;
-      checks->nfc_data = false;
-      memset(checks->diff_blocks, 0, sizeof(checks->diff_blocks));
-      checks->diff_count = 0;
-      checks->total_blocks = 0;
-   }
+   furi_assert(checks);
+   checks->compare_type = NfcCompareChecksType_Undefined;
+   furi_string_reset(checks->nfc_card_path);
+   checks->uid = false;
+   checks->uid_length = false;
+   checks->protocol = false;
+   checks->nfc_data = false;
+   checks->diff_unit = NfcCompareChecksComparedDataType_Unkown;
+   memset(checks->diff_blocks, 0, sizeof(checks->diff_blocks));
+   checks->diff_count = 0;
+   checks->total_blocks = 0;
 }
 
 void nfc_comparator_compare_checks_set_type(
    NfcComparatorCompareChecks* checks,
    NfcCompareChecksType type) {
    furi_assert(checks);
+   furi_assert(type);
    checks->compare_type = type;
 }
 
@@ -148,6 +155,9 @@ void nfc_comparator_compare_checks_compare_cards(
                   checks->diff_count++;
                }
             }
+
+            checks->diff_unit = NfcCompareChecksComparedDataType_Pages;
+
             break;
          }
 
@@ -174,6 +184,9 @@ void nfc_comparator_compare_checks_compare_cards(
                   checks->diff_count++;
                }
             }
+
+            checks->diff_unit = NfcCompareChecksComparedDataType_Blocks;
+
             break;
          }
 
@@ -197,6 +210,9 @@ void nfc_comparator_compare_checks_compare_cards(
                   checks->diff_count++;
                }
             }
+
+            checks->diff_unit = NfcCompareChecksComparedDataType_Blocks;
+
             break;
          }
 
@@ -224,6 +240,9 @@ void nfc_comparator_compare_checks_compare_cards(
                   checks->diff_count++;
                }
             }
+
+            checks->diff_unit = NfcCompareChecksComparedDataType_Bytes;
+
             break;
          }
 
@@ -255,6 +274,9 @@ void nfc_comparator_compare_checks_compare_cards(
                   checks->diff_count++;
                }
             }
+
+            checks->diff_unit = NfcCompareChecksComparedDataType_Blocks;
+
             break;
          }
 
@@ -262,6 +284,6 @@ void nfc_comparator_compare_checks_compare_cards(
          default:
             break;
          }
-      } 
+      }
    }
 }

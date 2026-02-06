@@ -24,6 +24,17 @@ typedef enum {
 } NfcCompareChecksType;
 
 /**
+ * @enum NfcCompareChecksDiffUnit
+ * @brief The data type which is being compared in depth
+ */
+typedef enum {
+   NfcCompareChecksComparedDataType_Blocks,
+   NfcCompareChecksComparedDataType_Pages,
+   NfcCompareChecksComparedDataType_Bytes,
+   NfcCompareChecksComparedDataType_Unkown
+} NfcCompareChecksDiffUnit;
+
+/**
  * @struct NfcComparatorCompareChecks
  * @brief Structure holding the results of NFC comparison checks.
  */
@@ -34,6 +45,7 @@ typedef struct {
    bool uid_length;
    bool protocol;
    bool nfc_data;
+   NfcCompareChecksDiffUnit diff_unit;
    uint16_t diff_blocks[2048];
    uint16_t diff_count;
    uint16_t total_blocks;
