@@ -127,6 +127,9 @@ void nfc_comparator_compare_checks_compare_cards(
                   checks->diff_count++;
                }
             }
+
+            checks->diff_unit = NfcCompareChecksComparedDataType_Blocks;
+
             break;
          }
 
