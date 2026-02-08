@@ -32,13 +32,15 @@ As i know these firmwares are supported and working if you know any more please 
 ## Compare support:
 > If you are able to provided example NFC files for unsupported cards please open a feature request so support can be worked on this will help improve the tool for everyone
 
-| Type                   | Status       | Notes                                                                                    |
-| ---------------------- | ------------ | ---------------------------------------------------------------------------------------- |
-| Mifare Classic         | Full Support | Thanks to the work of <a href="https://github.com/yoan8306" target="_blank">yoan8306</a> |
-| NTAG/Mifare Ultralight | Full Support |                                                                                          |
-| ST25TB                 | Full Support |                                                                                          |
-| Felica                 | Full Support |                                                                                          |
-| Type 4 Tags            | Full Support |                                                                                          |
-| ISO15693-3             | Full Support |                                                                                          |
+| Type                   | Digital Support | Physical support | Notes                                                                                    |
+| ---------------------- | --------------- | ---------------- | ---------------------------------------------------------------------------------------- |
+| Mifare Classic         | Full            | Partial          | Thanks to the work of <a href="https://github.com/yoan8306" target="_blank">yoan8306</a> |
+| NTAG/Mifare Ultralight | Full            | Partial          | Physical scans support UID/Protocol comparison only                                      |
+| ST25TB                 | Full            | Partial          | Physical scans support UID/Protocol comparison only                                      |
+| Felica                 | Full            | Partial          | Physical scans support UID/Protocol comparison only                                      |
+| Type 4 Tags            | Full            | Partial          | Physical scans support UID/Protocol comparison only                                      |
+| ISO15693-3             | Full            | Partial          | Physical scans support UID/Protocol comparison only                                      |
+| SLIX                   | Full            | Partial          | Physical scans support UID/Protocol comparison only                                      |
+
 
 > For types that are working progress or not in the list this means that the comparator will only be able to compare the UID, UID length and protocol but not the NFC data in-depth meaning it may show false positives if two cards share the same UID or have some matching data but are not identical cards
