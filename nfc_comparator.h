@@ -43,28 +43,23 @@ typedef enum {
    NfcComparatorView_Count
 } NfcComparatorViews;
 
-/** File browser view and its output string */
-typedef struct {
-   FileBrowser* view;
-   FuriString* output;
-   FuriString* tmp_output;
-} NfcComparatorFileBrowserView;
-
-/** Text box and its text store */
-typedef struct {
-   TextBox* view;
-   FuriString* store;
-} NfcComparatorTextBoxView;
-
 /** All views used by the NFC Comparator app */
 typedef struct {
    Submenu* submenu;
-   NfcComparatorFileBrowserView file_browser;
+   struct {
+      FileBrowser* view;
+      FuriString* output;
+      FuriString* tmp_output;
+   } file_browser;
    Popup* popup;
    Widget* widget;
    Loading* loading;
    VariableItemList* variable_item_list;
-   NfcComparatorTextBoxView text_box;
+   struct {
+      TextBox* view;
+      FuriString* store;
+   } text_box;
+
 } NfcComparatorView;
 
 /** All worker instances used by the NFC Comparator app */
