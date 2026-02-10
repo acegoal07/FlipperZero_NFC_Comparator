@@ -6,13 +6,13 @@ void nfc_comparator_data_breakdown_scene_on_enter(void* context) {
 
    furi_string_reset(nfc_comparator->views.text_box.store);
 
-   uint16_t total = nfc_comparator->workers.compare_checks->total_blocks;
-   uint16_t diff = nfc_comparator->workers.compare_checks->diff_count;
+   uint16_t total = nfc_comparator->workers.compare_checks->diff.total;
+   uint16_t diff = nfc_comparator->workers.compare_checks->diff.count;
    uint16_t similar = total - diff;
    uint8_t percentage = (similar * 100) / total;
 
    const char* unit_name;
-   switch(nfc_comparator->workers.compare_checks->diff_unit) {
+   switch(nfc_comparator->workers.compare_checks->diff.unit) {
    case NfcCompareChecksComparedDataType_Blocks:
       unit_name = "blocks";
       break;
@@ -41,13 +41,13 @@ void nfc_comparator_data_breakdown_scene_on_enter(void* context) {
       furi_string_cat_printf(
          nfc_comparator->views.text_box.store,
          "%d",
-         nfc_comparator->workers.compare_checks->diff_blocks[i]);
+         nfc_comparator->workers.compare_checks->diff.indices[i]);
 
       if(i < diff - 1) {
-         furi_string_cat_printf(nfc_comparator->views.text_box.store, ", ");
+         furi_string_cat(nfc_comparator->views.text_box.store, ", ");
 
          if((i + 1) % 5 == 0) {
-            furi_string_cat_printf(nfc_comparator->views.text_box.store, "\n");
+            furi_string_cat(nfc_comparator->views.text_box.store, "\n");
          }
       }
    }

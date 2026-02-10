@@ -10,8 +10,7 @@ void nfc_comparator_physical_compare_scan_scene_on_enter(void* context) {
    popup_set_context(nfc_comparator->views.popup, nfc_comparator);
    view_dispatcher_switch_to_view(nfc_comparator->view_dispatcher, NfcComparatorView_Popup);
 
-   nfc_comparator_compare_checks_set_type(
-      nfc_comparator->workers.compare_checks, NfcCompareChecksType_Shallow);
+   nfc_comparator->workers.compare_checks->compare_type = NfcCompareChecksType_Shallow;
 
    nfc_comparator->workers.reader_worker =
       nfc_comparator_reader_worker_alloc(nfc_comparator->workers.compare_checks);

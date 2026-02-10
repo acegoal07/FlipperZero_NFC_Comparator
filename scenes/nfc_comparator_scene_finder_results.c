@@ -20,15 +20,15 @@ void nfc_comparator_finder_results_scene_on_enter(void* context) {
    bool match = false;
    switch(nfc_comparator->workers.compare_checks->compare_type) {
    case NfcCompareChecksType_Deep:
-      match = nfc_comparator->workers.compare_checks->uid &&
-              nfc_comparator->workers.compare_checks->uid_length &&
-              nfc_comparator->workers.compare_checks->protocol &&
-              nfc_comparator->workers.compare_checks->nfc_data;
+      match = nfc_comparator->workers.compare_checks->results.uid &&
+              nfc_comparator->workers.compare_checks->results.uid_length &&
+              nfc_comparator->workers.compare_checks->results.protocol &&
+              nfc_comparator->workers.compare_checks->results.nfc_data;
       break;
    case NfcCompareChecksType_Shallow:
-      match = nfc_comparator->workers.compare_checks->uid &&
-              nfc_comparator->workers.compare_checks->uid_length &&
-              nfc_comparator->workers.compare_checks->protocol;
+      match = nfc_comparator->workers.compare_checks->results.uid &&
+              nfc_comparator->workers.compare_checks->results.uid_length &&
+              nfc_comparator->workers.compare_checks->results.protocol;
       break;
    default:
       furi_string_set(temp_str, "Unknown comparison type.");
@@ -42,8 +42,8 @@ void nfc_comparator_finder_results_scene_on_enter(void* context) {
             "\e#Match found!\e#\n%s",
             furi_string_get_cstr(nfc_comparator->workers.compare_checks->nfc_card_path));
       } else {
-         if(nfc_comparator->workers.compare_checks->diff_count <
-            (nfc_comparator->workers.compare_checks->total_blocks * 0.80)) {
+         if(nfc_comparator->workers.compare_checks->diff.count <
+            (nfc_comparator->workers.compare_checks->diff.total * 0.80)) {
             furi_string_printf(
                temp_str,
                "\e#Partial match found!\e#\n%s",

@@ -26,21 +26,21 @@ void nfc_comparator_compare_results_scene_on_enter(void* context) {
       furi_string_printf(
          temp_str,
          "\e#UID:\e# %s\n\e#UID length:\e# %s\n\e#Protocol:\e# %s",
-         match_str(nfc_comparator->workers.compare_checks->uid),
-         match_str(nfc_comparator->workers.compare_checks->uid_length),
-         match_str(nfc_comparator->workers.compare_checks->protocol));
+         match_str(nfc_comparator->workers.compare_checks->results.uid),
+         match_str(nfc_comparator->workers.compare_checks->results.uid_length),
+         match_str(nfc_comparator->workers.compare_checks->results.protocol));
       break;
    case NfcCompareChecksType_Deep:
       furi_string_printf(
          temp_str,
          "\e#UID:\e# %s\n\e#UID length:\e# %s\n\e#Protocol:\e# %s\n\e#NFC Data:\e# %s",
-         match_str(nfc_comparator->workers.compare_checks->uid),
-         match_str(nfc_comparator->workers.compare_checks->uid_length),
-         match_str(nfc_comparator->workers.compare_checks->protocol),
-         match_str(nfc_comparator->workers.compare_checks->nfc_data));
+         match_str(nfc_comparator->workers.compare_checks->results.uid),
+         match_str(nfc_comparator->workers.compare_checks->results.uid_length),
+         match_str(nfc_comparator->workers.compare_checks->results.protocol),
+         match_str(nfc_comparator->workers.compare_checks->results.nfc_data));
 
-      if(!nfc_comparator->workers.compare_checks->nfc_data &&
-         nfc_comparator->workers.compare_checks->diff_count > 0) {
+      if(!nfc_comparator->workers.compare_checks->results.nfc_data &&
+         nfc_comparator->workers.compare_checks->diff.count > 0) {
          widget_add_button_element(
             nfc_comparator->views.widget,
             GuiButtonTypeCenter,

@@ -8,6 +8,7 @@
 #include <nfc/protocols/felica/felica.h>
 #include <nfc/protocols/type_4_tag/type_4_tag.h>
 #include <nfc/protocols/iso15693_3/iso15693_3.h>
+#include <nfc/protocols/slix/slix.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,14 +42,18 @@ typedef enum {
 typedef struct {
    NfcCompareChecksType compare_type;
    FuriString* nfc_card_path;
-   bool uid;
-   bool uid_length;
-   bool protocol;
-   bool nfc_data;
-   NfcCompareChecksDiffUnit diff_unit;
-   uint16_t diff_blocks[2048];
-   uint16_t diff_count;
-   uint16_t total_blocks;
+   struct {
+      bool uid;
+      bool uid_length;
+      bool protocol;
+      bool nfc_data;
+   } results;
+   struct {
+      NfcCompareChecksDiffUnit unit;
+      uint16_t indices[2048];
+      uint16_t count;
+      uint16_t total;
+   } diff;
 } NfcComparatorCompareChecks;
 
 /**
@@ -77,15 +82,6 @@ void nfc_comparator_compare_checks_copy(
  * @param checks Pointer to the structure to reset.
  */
 void nfc_comparator_compare_checks_reset(NfcComparatorCompareChecks* checks);
-
-/**
- * @brief Set the comparison type.
- * @param checks Pointer to the structure.
- * @param type The type to set.
- */
-void nfc_comparator_compare_checks_set_type(
-   NfcComparatorCompareChecks* checks,
-   NfcCompareChecksType type);
 
 /**
  * @brief Compare two NFC cards and update the checks structure.
