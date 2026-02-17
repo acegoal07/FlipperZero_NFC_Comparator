@@ -9,6 +9,9 @@
 #include <nfc/protocols/type_4_tag/type_4_tag.h>
 #include <nfc/protocols/iso15693_3/iso15693_3.h>
 #include <nfc/protocols/slix/slix.h>
+#include <nfc/protocols/emv/emv.h>
+
+#include <simple_array.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,6 +35,7 @@ typedef enum {
    NfcCompareChecksComparedDataType_Blocks,
    NfcCompareChecksComparedDataType_Pages,
    NfcCompareChecksComparedDataType_Bytes,
+   NfcCompareChecksComparedDataType_EmvFields,
    NfcCompareChecksComparedDataType_Unkown
 } NfcCompareChecksDiffUnit;
 
@@ -50,7 +54,7 @@ typedef struct {
    } results;
    struct {
       NfcCompareChecksDiffUnit unit;
-      uint16_t indices[2048];
+      SimpleArray* indices;
       uint16_t count;
       uint16_t total;
    } diff;

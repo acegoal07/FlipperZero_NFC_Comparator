@@ -1,5 +1,12 @@
 #include "nfc_comparator_compare_checks.h"
 
+static const SimpleArrayConfig simple_array_config_uint16_t = {
+   .init = NULL,
+   .reset = NULL,
+   .copy = NULL,
+   .type_size = sizeof(uint16_t),
+};
+
 NfcComparatorCompareChecks* nfc_comparator_compare_checks_alloc() {
    NfcComparatorCompareChecks* checks = malloc(sizeof(NfcComparatorCompareChecks));
    furi_assert(checks);
@@ -11,7 +18,7 @@ NfcComparatorCompareChecks* nfc_comparator_compare_checks_alloc() {
    checks->results.protocol = false;
    checks->results.nfc_data = false;
    checks->diff.unit = NfcCompareChecksComparedDataType_Unkown;
-   memset(checks->diff.indices, 0, sizeof(checks->diff.indices));
+   checks->diff.indices = simple_array_alloc(&simple_array_config_uint16_t);
    checks->diff.count = 0;
    checks->diff.total = 0;
 
@@ -21,6 +28,7 @@ NfcComparatorCompareChecks* nfc_comparator_compare_checks_alloc() {
 void nfc_comparator_compare_checks_free(NfcComparatorCompareChecks* checks) {
    furi_assert(checks);
    furi_string_free(checks->nfc_card_path);
+   simple_array_free(checks->diff.indices);
    free(checks);
 }
 
@@ -37,7 +45,7 @@ void nfc_comparator_compare_checks_copy(
    destination->results.protocol = data->results.protocol;
    destination->results.nfc_data = data->results.nfc_data;
    destination->diff.unit = data->diff.unit;
-   memcpy(destination->diff.indices, data->diff.indices, sizeof(destination->diff.indices));
+   simple_array_copy(destination->diff.indices, data->diff.indices);
    destination->diff.count = data->diff.count;
    destination->diff.total = data->diff.total;
 }
@@ -51,7 +59,7 @@ void nfc_comparator_compare_checks_reset(NfcComparatorCompareChecks* checks) {
    checks->results.protocol = false;
    checks->results.nfc_data = false;
    checks->diff.unit = NfcCompareChecksComparedDataType_Unkown;
-   memset(checks->diff.indices, 0, sizeof(checks->diff.indices));
+   simple_array_reset(checks->diff.indices);
    checks->diff.count = 0;
    checks->diff.total = 0;
 }
@@ -107,6 +115,7 @@ void nfc_comparator_compare_checks_compare_cards(
             }
 
             checks->diff.total = card1_block_count;
+            simple_array_init(checks->diff.indices, card1_block_count);
 
             for(size_t i = 0; i < card1_block_count && i < FELICA_STANDARD_MAX_BLOCK_COUNT; i++) {
                const uint8_t* card1_block =
@@ -115,7 +124,8 @@ void nfc_comparator_compare_checks_compare_cards(
                   &card2_data->data.dump[i * (FELICA_DATA_BLOCK_SIZE + 2)];
 
                if(memcmp(card1_block, card2_block, FELICA_DATA_BLOCK_SIZE) != 0) {
-                  checks->diff.indices[checks->diff.count] = i;
+                  uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+                  *idx = i;
                   checks->diff.count++;
                }
             }
@@ -140,13 +150,15 @@ void nfc_comparator_compare_checks_compare_cards(
             }
 
             checks->diff.total = card1_block_count;
+            simple_array_init(checks->diff.indices, card1_block_count);
 
             for(size_t i = 0; i < card1_block_count && i < MF_ULTRALIGHT_MAX_PAGE_NUM; i++) {
                if(memcmp(
                      card1_data->page[i].data,
                      card2_data->page[i].data,
                      MF_ULTRALIGHT_PAGE_SIZE) != 0) {
-                  checks->diff.indices[checks->diff.count] = i;
+                  uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+                  *idx = i;
                   checks->diff.count++;
                }
             }
@@ -169,13 +181,15 @@ void nfc_comparator_compare_checks_compare_cards(
             }
 
             checks->diff.total = card1_block_count;
+            simple_array_init(checks->diff.indices, card1_block_count);
 
             for(size_t i = 0; i < card1_block_count && i < MF_CLASSIC_TOTAL_BLOCKS_MAX; i++) {
                if(memcmp(
                      card1_data->block[i].data,
                      card2_data->block[i].data,
                      MF_CLASSIC_BLOCK_SIZE) != 0) {
-                  checks->diff.indices[checks->diff.count] = i;
+                  uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+                  *idx = i;
                   checks->diff.count++;
                }
             }
@@ -198,10 +212,12 @@ void nfc_comparator_compare_checks_compare_cards(
             }
 
             checks->diff.total = card1_block_count;
+            simple_array_init(checks->diff.indices, card1_block_count);
 
             for(size_t i = 0; i < card1_block_count && i < ST25TB_MAX_BLOCKS; i++) {
                if(memcmp(&card1_data->blocks[i], &card2_data->blocks[i], ST25TB_BLOCK_SIZE) != 0) {
-                  checks->diff.indices[checks->diff.count] = i;
+                  uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+                  *idx = i;
                   checks->diff.count++;
                }
             }
@@ -225,13 +241,16 @@ void nfc_comparator_compare_checks_compare_cards(
             }
 
             checks->diff.total = card1_block_count;
+            simple_array_init(checks->diff.indices, card1_block_count);
 
             const uint8_t* block1 = (const uint8_t*)simple_array_cget(card1_data->ndef_data, 0);
             const uint8_t* block2 = (const uint8_t*)simple_array_cget(card2_data->ndef_data, 0);
 
             for(size_t i = 0; i < card1_block_count && i < TYPE_4_TAG_MF_DESFIRE_NDEF_SIZE; i++) {
                if(block1[i] != block2[i]) {
-                  checks->diff.indices[checks->diff.count] = i;
+                  uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+                  *idx = i;
+
                   checks->diff.count++;
                }
             }
@@ -257,6 +276,7 @@ void nfc_comparator_compare_checks_compare_cards(
             }
 
             checks->diff.total = card1_block_count;
+            simple_array_init(checks->diff.indices, card1_block_count);
 
             for(size_t i = 0; i < card1_block_count && i < 256; i++) {
                const uint8_t* block1 =
@@ -265,7 +285,8 @@ void nfc_comparator_compare_checks_compare_cards(
                   (const uint8_t*)simple_array_cget(card2_data->block_data, i * card2_block_size);
 
                if(memcmp(block1, block2, card1_block_size) != 0) {
-                  checks->diff.indices[checks->diff.count] = i;
+                  uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+                  *idx = i;
                   checks->diff.count++;
                }
             }
@@ -294,6 +315,7 @@ void nfc_comparator_compare_checks_compare_cards(
             }
 
             checks->diff.total = card1_block_count;
+            simple_array_init(checks->diff.indices, card1_block_count);
 
             for(size_t i = 0; i < card1_block_count && i < 224; i++) {
                const uint8_t* block1 = (const uint8_t*)simple_array_cget(
@@ -302,16 +324,106 @@ void nfc_comparator_compare_checks_compare_cards(
                   card2_data->iso15693_3_data->block_data, i * card2_block_size);
 
                if(memcmp(block1, block2, card1_block_size) != 0) {
-                  checks->diff.indices[checks->diff.count] = i;
+                  uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+                  *idx = i;
                   checks->diff.count++;
                }
             }
 
             checks->diff.unit = NfcCompareChecksComparedDataType_Blocks;
+
+            break;
          }
 
-         // All the others that are not supported or implemented yet
+         // EMV
+         case NfcProtocolEmv: {
+            const EmvData* card1_data = nfc_device_get_data(card1, NfcProtocolEmv);
+            const EmvData* card2_data = nfc_device_get_data(card2, NfcProtocolEmv);
+
+            checks->diff.total = 8;
+            simple_array_init(checks->diff.indices, checks->diff.total);
+            checks->diff.count = 0;
+
+            // Compare PAN (card number)
+            if(card1_data->emv_application.pan_len != card2_data->emv_application.pan_len ||
+               memcmp(
+                  card1_data->emv_application.pan,
+                  card2_data->emv_application.pan,
+                  card1_data->emv_application.pan_len) != 0) {
+               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+               *idx = 0;
+               checks->diff.count++;
+            }
+
+            // Compare cardholder name
+            if(strcmp(
+                  card1_data->emv_application.cardholder_name,
+                  card2_data->emv_application.cardholder_name) != 0) {
+               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+               *idx = 1;
+               checks->diff.count++;
+            }
+
+            // Compare expiration date
+            if(card1_data->emv_application.exp_month != card2_data->emv_application.exp_month ||
+               card1_data->emv_application.exp_year != card2_data->emv_application.exp_year) {
+               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+               *idx = 2;
+               checks->diff.count++;
+            }
+
+            // Compare AID
+            if(card1_data->emv_application.aid_len != card2_data->emv_application.aid_len ||
+               memcmp(
+                  card1_data->emv_application.aid,
+                  card2_data->emv_application.aid,
+                  card1_data->emv_application.aid_len) != 0) {
+               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+               *idx = 3;
+               checks->diff.count++;
+            }
+
+            // Compare application name
+            if(strcmp(
+                  card1_data->emv_application.application_name,
+                  card2_data->emv_application.application_name) != 0) {
+               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+               *idx = 4;
+               checks->diff.count++;
+            }
+
+            // Compare application label
+            if(strcmp(
+                  card1_data->emv_application.application_label,
+                  card2_data->emv_application.application_label) != 0) {
+               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+               *idx = 5;
+               checks->diff.count++;
+            }
+
+            // Compare country code
+            if(card1_data->emv_application.country_code !=
+               card2_data->emv_application.country_code) {
+               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+               *idx = 6;
+               checks->diff.count++;
+            }
+
+            // Compare currency code
+            if(card1_data->emv_application.currency_code !=
+               card2_data->emv_application.currency_code) {
+               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+               *idx = 7;
+               checks->diff.count++;
+            }
+
+            checks->diff.unit = NfcCompareChecksComparedDataType_EmvFields;
+
+            break;
+         }
+
          default:
+            checks->compare_type = NfcCompareChecksType_Shallow;
             break;
          }
       }

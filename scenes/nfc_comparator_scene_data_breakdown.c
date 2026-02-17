@@ -1,5 +1,15 @@
 #include "../nfc_comparator.h"
 
+static const char* EmvFieldNames[] = {
+   "Card Number",
+   "Cardholder Name",
+   "Expiration Date",
+   "AID",
+   "Application Name",
+   "Application Label",
+   "Country Code",
+   "Currency Code"};
+
 void nfc_comparator_data_breakdown_scene_on_enter(void* context) {
    furi_assert(context);
    NfcComparator* nfc_comparator = context;
@@ -22,6 +32,9 @@ void nfc_comparator_data_breakdown_scene_on_enter(void* context) {
    case NfcCompareChecksComparedDataType_Bytes:
       unit_name = "bytes";
       break;
+   case NfcCompareChecksComparedDataType_EmvFields:
+      unit_name = "fields";
+      break;
    default:
       unit_name = "units";
       break;
@@ -38,16 +51,25 @@ void nfc_comparator_data_breakdown_scene_on_enter(void* context) {
       diff);
 
    for(int i = 0; i < diff; i++) {
-      furi_string_cat_printf(
-         nfc_comparator->views.text_box.store,
-         "%d",
-         nfc_comparator->workers.compare_checks->diff.indices[i]);
+      const uint16_t* idx =
+         simple_array_cget(nfc_comparator->workers.compare_checks->diff.indices, i);
 
-      if(i < diff - 1) {
-         furi_string_cat(nfc_comparator->views.text_box.store, ", ");
+      if(nfc_comparator->workers.compare_checks->diff.unit ==
+         NfcCompareChecksComparedDataType_EmvFields) {
+         furi_string_cat_printf(nfc_comparator->views.text_box.store, "%s", EmvFieldNames[*idx]);
 
-         if((i + 1) % 5 == 0) {
-            furi_string_cat(nfc_comparator->views.text_box.store, "\n");
+         if(i < diff - 1) {
+            furi_string_cat(nfc_comparator->views.text_box.store, ",\n");
+         }
+      } else {
+         furi_string_cat_printf(nfc_comparator->views.text_box.store, "%d", *idx);
+
+         if(i < diff - 1) {
+            furi_string_cat(nfc_comparator->views.text_box.store, ", ");
+            if((i + 1) % 5 == 0 && nfc_comparator->workers.compare_checks->diff.unit !=
+                                      NfcCompareChecksComparedDataType_EmvFields) {
+               furi_string_cat(nfc_comparator->views.text_box.store, "\n");
+            }
          }
       }
    }
