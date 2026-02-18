@@ -99,6 +99,34 @@ void nfc_comparator_compare_checks_compare_cards(
    const struct NfcDevice* card1,
    const struct NfcDevice* card2);
 
+/**
+ * @brief Names for EMV fields
+ */
+static const char* const EmvFieldNames[] = {
+   "AID",
+   "Application Label",
+   "Application Name",
+   "Card Number",
+   "Cardholder Name",
+   "Country Code",
+   "Currency Code",
+   "Expiration Date"};
+
+/**
+ * @enum EmvFields
+ * @brief Enumeration of EMV payment card fields for comparison
+ */
+typedef enum {
+   EmvField_AID,
+   EmvField_ApplicationLabel,
+   EmvField_ApplicationName,
+   EmvField_CardNumber,
+   EmvField_CardHolder,
+   EmvField_CountryCode,
+   EmvField_CurrencyCode,
+   EmvField_ExpirationDate
+} EmvFields;
+
 #ifdef __cplusplus
 }
 #endif

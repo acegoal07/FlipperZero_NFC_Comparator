@@ -1,15 +1,5 @@
 #include "../nfc_comparator.h"
 
-static const char* EmvFieldNames[] = {
-   "Card Number",
-   "Cardholder Name",
-   "Expiration Date",
-   "AID",
-   "Application Name",
-   "Application Label",
-   "Country Code",
-   "Currency Code"};
-
 void nfc_comparator_data_breakdown_scene_on_enter(void* context) {
    furi_assert(context);
    NfcComparator* nfc_comparator = context;

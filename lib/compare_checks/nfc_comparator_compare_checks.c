@@ -344,34 +344,6 @@ void nfc_comparator_compare_checks_compare_cards(
             simple_array_init(checks->diff.indices, checks->diff.total);
             checks->diff.count = 0;
 
-            // Compare PAN (card number)
-            if(card1_data->emv_application.pan_len != card2_data->emv_application.pan_len ||
-               memcmp(
-                  card1_data->emv_application.pan,
-                  card2_data->emv_application.pan,
-                  card1_data->emv_application.pan_len) != 0) {
-               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
-               *idx = 0;
-               checks->diff.count++;
-            }
-
-            // Compare cardholder name
-            if(strcmp(
-                  card1_data->emv_application.cardholder_name,
-                  card2_data->emv_application.cardholder_name) != 0) {
-               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
-               *idx = 1;
-               checks->diff.count++;
-            }
-
-            // Compare expiration date
-            if(card1_data->emv_application.exp_month != card2_data->emv_application.exp_month ||
-               card1_data->emv_application.exp_year != card2_data->emv_application.exp_year) {
-               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
-               *idx = 2;
-               checks->diff.count++;
-            }
-
             // Compare AID
             if(card1_data->emv_application.aid_len != card2_data->emv_application.aid_len ||
                memcmp(
@@ -379,16 +351,7 @@ void nfc_comparator_compare_checks_compare_cards(
                   card2_data->emv_application.aid,
                   card1_data->emv_application.aid_len) != 0) {
                uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
-               *idx = 3;
-               checks->diff.count++;
-            }
-
-            // Compare application name
-            if(strcmp(
-                  card1_data->emv_application.application_name,
-                  card2_data->emv_application.application_name) != 0) {
-               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
-               *idx = 4;
+               *idx = EmvField_AID;
                checks->diff.count++;
             }
 
@@ -397,7 +360,36 @@ void nfc_comparator_compare_checks_compare_cards(
                   card1_data->emv_application.application_label,
                   card2_data->emv_application.application_label) != 0) {
                uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
-               *idx = 5;
+               *idx = EmvField_ApplicationLabel;
+               checks->diff.count++;
+            }
+
+            // Compare application name
+            if(strcmp(
+                  card1_data->emv_application.application_name,
+                  card2_data->emv_application.application_name) != 0) {
+               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+               *idx = EmvField_ApplicationName;
+               checks->diff.count++;
+            }
+
+            // Compare PAN (card number)
+            if(card1_data->emv_application.pan_len != card2_data->emv_application.pan_len ||
+               memcmp(
+                  card1_data->emv_application.pan,
+                  card2_data->emv_application.pan,
+                  card1_data->emv_application.pan_len) != 0) {
+               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+               *idx = EmvField_CardNumber;
+               checks->diff.count++;
+            }
+
+            // Compare cardholder name
+            if(strcmp(
+                  card1_data->emv_application.cardholder_name,
+                  card2_data->emv_application.cardholder_name) != 0) {
+               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+               *idx = EmvField_CardHolder;
                checks->diff.count++;
             }
 
@@ -405,7 +397,7 @@ void nfc_comparator_compare_checks_compare_cards(
             if(card1_data->emv_application.country_code !=
                card2_data->emv_application.country_code) {
                uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
-               *idx = 6;
+               *idx = EmvField_CountryCode;
                checks->diff.count++;
             }
 
@@ -413,7 +405,15 @@ void nfc_comparator_compare_checks_compare_cards(
             if(card1_data->emv_application.currency_code !=
                card2_data->emv_application.currency_code) {
                uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
-               *idx = 7;
+               *idx = EmvField_CurrencyCode;
+               checks->diff.count++;
+            }
+
+            // Compare expiration date
+            if(card1_data->emv_application.exp_month != card2_data->emv_application.exp_month ||
+               card1_data->emv_application.exp_year != card2_data->emv_application.exp_year) {
+               uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
+               *idx = EmvField_ExpirationDate;
                checks->diff.count++;
             }
 
