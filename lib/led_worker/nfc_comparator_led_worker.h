@@ -1,10 +1,10 @@
 #pragma once
 
-#include <notification/notification_messages.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct NotificationApp NotificationApp;
 
 /** 
  * @enum NfcComparatorLedState

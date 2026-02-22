@@ -1,4 +1,4 @@
-#include "nfc_comparator_led_worker.h"
+#include "nfc_comparator_led_worker_i.h"
 
 void nfc_comparator_led_worker_start(
    NotificationApp* notification_app,

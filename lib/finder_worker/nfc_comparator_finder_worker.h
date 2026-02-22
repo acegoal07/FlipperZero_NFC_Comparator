@@ -1,19 +1,15 @@
 #pragma once
 
-#include <furi.h>
-#include <nfc/nfc.h>
-#include <nfc/nfc_device.h>
-#include <nfc/nfc_poller.h>
-#include <nfc/nfc_scanner.h>
-#include <storage/storage.h>
-#include <dir_walk.h>
-#include <path.h>
-
-#include "../compare_checks/nfc_comparator_compare_checks.h"
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct NfcComparatorFinderWorker NfcComparatorFinderWorker;
+typedef struct NfcComparatorCompareChecks NfcComparatorCompareChecks;
+typedef struct NfcDevice NfcDevice;
+typedef struct FuriString FuriString;
 
 /**
  * @enum NfcComparatorFinderWorkerState
@@ -33,23 +29,6 @@ typedef enum {
 typedef struct {
    bool recursive; /**< Whether to search recursively */
 } NfcComparatorFinderWorkerSettings;
-
-/**
- * @struct NfcComparatorFinderWorker
- * @brief Holds all state for the NFC Comparator Reader Worker.
- */
-typedef struct {
-   Nfc* nfc; /**< Pointer to the NFC context */
-   FuriThread* thread; /**< Worker thread */
-   NfcProtocol* protocol; /**< Protocol in use */
-   NfcComparatorFinderWorkerState state; /**< Current worker state */
-   NfcDevice* loaded_nfc_card; /**< NFC card loaded from storage */
-   NfcDevice* scanned_nfc_card; /**< NFC card scanned from reader */
-   NfcPoller* nfc_poller; /**< NFC poller instance */
-   DirWalk* dir_walk; /**< Directory walker for file search */
-   NfcComparatorCompareChecks* compare_checks; /**< Comparison results structure */
-   NfcComparatorFinderWorkerSettings* settings; /**< Worker settings */
-} NfcComparatorFinderWorker;
 
 /**
  * @brief Allocate and initialize a new NfcComparatorFinderWorker.

@@ -43,7 +43,7 @@ void nfc_comparator_finder_results_scene_on_enter(void* context) {
             furi_string_get_cstr(nfc_comparator->workers.compare_checks->nfc_card_path));
       } else {
          if(nfc_comparator->workers.compare_checks->diff.count <
-            (nfc_comparator->workers.compare_checks->diff.total * 0.80)) {
+            (nfc_comparator->workers.compare_checks->diff.total * 0.20)) {
             furi_string_printf(
                temp_str,
                "\e#Partial match found!\e#\n%s",

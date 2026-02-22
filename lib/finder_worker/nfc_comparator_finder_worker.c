@@ -1,4 +1,4 @@
-#include "nfc_comparator_finder_worker.h"
+#include "nfc_comparator_finder_worker_i.h"
 
 static void nfc_comparator_finder_worker_scanner_callback(NfcScannerEvent event, void* context) {
    furi_assert(context);
@@ -81,7 +81,7 @@ NfcComparatorFinderWorker* nfc_comparator_finder_worker_alloc(
    worker->thread = furi_thread_alloc();
    furi_thread_set_name(worker->thread, "NfcComparatorFinderWorker");
    furi_thread_set_context(worker->thread, worker);
-   furi_thread_set_stack_size(worker->thread, 1024);
+   furi_thread_set_stack_size(worker->thread, 4096);
    furi_thread_set_callback(worker->thread, nfc_comparator_finder_worker_task);
 
    if(!worker->thread) {

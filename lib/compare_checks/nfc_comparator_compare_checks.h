@@ -1,18 +1,24 @@
 #pragma once
 
-#include <furi.h>
-#include <nfc_device.h>
-#include <nfc/protocols/mf_classic/mf_classic.h>
-#include <nfc/protocols/st25tb/st25tb.h>
-#include <nfc/protocols/mf_ultralight/mf_ultralight.h>
-#include <nfc/protocols/felica/felica.h>
-#include <nfc/protocols/type_4_tag/type_4_tag.h>
-#include <nfc/protocols/iso15693_3/iso15693_3.h>
-#include <nfc/protocols/slix/slix.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+#include "protocols/emv/emv.h"
+#include "protocols/slix/slix.h"
+#include "protocols/mf_classic/mf_classic.h"
+#include "protocols/felica/felica.h"
+#include "protocols/mf_ultralight/mf_ultralight.h"
+#include "protocols/st25tb/st25tb.h"
+#include "protocols/type_4_tag/type_4_tag.h"
+#include "protocols/iso15693_3/iso15693_3.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct SimpleArray SimpleArray;
+typedef struct NfcDevice NfcDevice;
+typedef struct FuriString FuriString;
 
 /**
  * @enum NfcCompareChecksType
@@ -32,6 +38,7 @@ typedef enum {
    NfcCompareChecksComparedDataType_Blocks,
    NfcCompareChecksComparedDataType_Pages,
    NfcCompareChecksComparedDataType_Bytes,
+   NfcCompareChecksComparedDataType_EmvFields,
    NfcCompareChecksComparedDataType_Unkown
 } NfcCompareChecksDiffUnit;
 
@@ -39,7 +46,7 @@ typedef enum {
  * @struct NfcComparatorCompareChecks
  * @brief Structure holding the results of NFC comparison checks.
  */
-typedef struct {
+typedef struct NfcComparatorCompareChecks {
    NfcCompareChecksType compare_type;
    FuriString* nfc_card_path;
    struct {
@@ -50,7 +57,7 @@ typedef struct {
    } results;
    struct {
       NfcCompareChecksDiffUnit unit;
-      uint16_t indices[2048];
+      SimpleArray* indices;
       uint16_t count;
       uint16_t total;
    } diff;
@@ -92,8 +99,8 @@ void nfc_comparator_compare_checks_reset(NfcComparatorCompareChecks* checks);
  */
 void nfc_comparator_compare_checks_compare_cards(
    NfcComparatorCompareChecks* checks,
-   const struct NfcDevice* card1,
-   const struct NfcDevice* card2);
+   const NfcDevice* card1,
+   const NfcDevice* card2);
 
 #ifdef __cplusplus
 }
