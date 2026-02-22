@@ -1,21 +1,22 @@
 #pragma once
 
 #include <furi.h>
-#include <nfc_device.h>
-#include <nfc/protocols/mf_classic/mf_classic.h>
-#include <nfc/protocols/st25tb/st25tb.h>
-#include <nfc/protocols/mf_ultralight/mf_ultralight.h>
-#include <nfc/protocols/felica/felica.h>
-#include <nfc/protocols/type_4_tag/type_4_tag.h>
-#include <nfc/protocols/iso15693_3/iso15693_3.h>
-#include <nfc/protocols/slix/slix.h>
-#include <nfc/protocols/emv/emv.h>
 
-#include <simple_array.h>
+#include "protocols/emv/emv.h"
+#include "protocols/slix/slix.h"
+#include "protocols/mf_classic/mf_classic.h"
+#include "protocols/felica/felica.h"
+#include "protocols/mf_ultralight/mf_ultralight.h"
+#include "protocols/st25tb/st25tb.h"
+#include "protocols/type_4_tag/type_4_tag.h"
+#include "protocols/iso15693_3/iso15693_3.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct SimpleArray SimpleArray;
+typedef struct NfcDevice NfcDevice;
 
 /**
  * @enum NfcCompareChecksType
@@ -43,7 +44,7 @@ typedef enum {
  * @struct NfcComparatorCompareChecks
  * @brief Structure holding the results of NFC comparison checks.
  */
-typedef struct {
+typedef struct NfcComparatorCompareChecks {
    NfcCompareChecksType compare_type;
    FuriString* nfc_card_path;
    struct {
@@ -96,36 +97,8 @@ void nfc_comparator_compare_checks_reset(NfcComparatorCompareChecks* checks);
  */
 void nfc_comparator_compare_checks_compare_cards(
    NfcComparatorCompareChecks* checks,
-   const struct NfcDevice* card1,
-   const struct NfcDevice* card2);
-
-/**
- * @brief Names for EMV fields
- */
-static const char* const EmvFieldNames[] = {
-   "AID",
-   "Application Label",
-   "Application Name",
-   "Card Number",
-   "Cardholder Name",
-   "Country Code",
-   "Currency Code",
-   "Expiration Date"};
-
-/**
- * @enum EmvFields
- * @brief Enumeration of EMV payment card fields for comparison
- */
-typedef enum {
-   EmvField_AID,
-   EmvField_ApplicationLabel,
-   EmvField_ApplicationName,
-   EmvField_CardNumber,
-   EmvField_CardHolder,
-   EmvField_CountryCode,
-   EmvField_CurrencyCode,
-   EmvField_ExpirationDate
-} EmvFields;
+   const NfcDevice* card1,
+   const NfcDevice* card2);
 
 #ifdef __cplusplus
 }

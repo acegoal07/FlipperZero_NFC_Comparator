@@ -21,6 +21,7 @@
 #include <dir_walk.h>
 #include <path.h>
 #include <dolphin/dolphin.h>
+#include <simple_array.h>
 
 #include "nfc_comparator_icons.h"
 #include "scenes/nfc_comparator_scene.h"

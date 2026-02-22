@@ -1,16 +1,13 @@
 #pragma once
 
-#include <furi.h>
-#include <nfc/nfc.h>
-#include <nfc/nfc_device.h>
-#include <nfc/nfc_poller.h>
-#include <nfc/nfc_scanner.h>
-
-#include "../compare_checks/nfc_comparator_compare_checks.h"
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct NfcComparatorCompareChecks NfcComparatorCompareChecks;
+typedef struct NfcComparatorReaderWorker NfcComparatorReaderWorker;
 
 /** Possible states for the NFC Comparator Reader Worker */
 typedef enum {
@@ -19,18 +16,6 @@ typedef enum {
    NfcComparatorReaderWorkerState_Comparing,
    NfcComparatorReaderWorkerState_Stopped
 } NfcComparatorReaderWorkerState;
-
-/** Holds all state for the NFC Comparator Reader Worker */
-typedef struct {
-   Nfc* nfc;
-   FuriThread* thread;
-   NfcProtocol* protocol;
-   NfcComparatorReaderWorkerState state;
-   NfcDevice* loaded_nfc_card;
-   NfcDevice* scanned_nfc_card;
-   NfcPoller* nfc_poller;
-   NfcComparatorCompareChecks* compare_checks;
-} NfcComparatorReaderWorker;
 
 /** Allocates and initializes a new NFC Comparator Reader Worker */
 NfcComparatorReaderWorker*
@@ -51,7 +36,7 @@ bool nfc_comparator_reader_worker_set_loaded_nfc_card(
    const char* path_to_nfc_card);
 
 /** Gets the current state of the worker */
-NfcComparatorReaderWorkerState*
+const NfcComparatorReaderWorkerState*
    nfc_comparator_reader_worker_get_state(NfcComparatorReaderWorker* worker);
 
 #ifdef __cplusplus

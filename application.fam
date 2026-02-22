@@ -5,7 +5,7 @@ App(
     entry_point="nfc_comparator_main",
     stack_size=2 * 1024,
     fap_category="NFC",
-    fap_version="2.3",
+    fap_version="2.4",
     fap_icon="assets/Comparator_10px.png",
     fap_description="A tool to check if a physical NFC card is the same as a saved digital one",
     fap_author="acegoal07",
