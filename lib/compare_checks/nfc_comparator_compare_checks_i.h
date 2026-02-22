@@ -1,5 +1,6 @@
 #pragma once
 
+#include <furi.h>
 #include <nfc_device.h>
 #include <simple_array.h>
 

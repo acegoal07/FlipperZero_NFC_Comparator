@@ -1,6 +1,7 @@
 #pragma once
 
-#include <furi.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #include "protocols/emv/emv.h"
 #include "protocols/slix/slix.h"
@@ -17,6 +18,7 @@ extern "C" {
 
 typedef struct SimpleArray SimpleArray;
 typedef struct NfcDevice NfcDevice;
+typedef struct FuriString FuriString;
 
 /**
  * @enum NfcCompareChecksType
