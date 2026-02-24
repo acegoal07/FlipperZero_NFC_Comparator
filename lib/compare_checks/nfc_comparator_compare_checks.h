@@ -12,6 +12,7 @@
 #include "protocols/type_4_tag/type_4_tag.h"
 #include "protocols/iso15693_3/iso15693_3.h"
 #include "protocols/mf_plus/mf_plus.h"
+#include "protocols/mf_desfire/mf_desfire.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,6 +42,7 @@ typedef enum {
    NfcCompareChecksComparedDataType_Bytes,
    NfcCompareChecksComparedDataType_EmvFields,
    NfcCompareChecksComparedDataType_MFPlusFields,
+   NfcCompareChecksComparedDataType_MFDesfireFields,
    NfcCompareChecksComparedDataType_Unkown
 } NfcCompareChecksDiffUnit;
 

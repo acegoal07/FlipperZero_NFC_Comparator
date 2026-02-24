@@ -28,6 +28,9 @@ void nfc_comparator_data_breakdown_scene_on_enter(void* context) {
    case NfcCompareChecksComparedDataType_MFPlusFields:
       unit_name = "fields";
       break;
+   case NfcCompareChecksComparedDataType_MFDesfireFields:
+      unit_name = "fields";
+      break;
    default:
       unit_name = "units";
       break;
@@ -43,29 +46,44 @@ void nfc_comparator_data_breakdown_scene_on_enter(void* context) {
       unit_name,
       diff);
 
-   for(int i = 0; i < diff; i++) {
-      const uint16_t* idx =
-         simple_array_cget(nfc_comparator->workers.compare_checks->diff.indices, i);
-
-      if(nfc_comparator->workers.compare_checks->diff.unit ==
-         NfcCompareChecksComparedDataType_EmvFields) {
+   switch(nfc_comparator->workers.compare_checks->diff.unit) {
+   case NfcCompareChecksComparedDataType_EmvFields:
+      for(int i = 0; i < diff; i++) {
+         const uint16_t* idx =
+            simple_array_cget(nfc_comparator->workers.compare_checks->diff.indices, i);
          furi_string_cat_printf(nfc_comparator->views.text_box.store, "%s", EmvFieldNames[*idx]);
-
          if(i < diff - 1) {
             furi_string_cat(nfc_comparator->views.text_box.store, ",\n");
          }
-      } else if(
-         nfc_comparator->workers.compare_checks->diff.unit ==
-         NfcCompareChecksComparedDataType_MFPlusFields) {
+      }
+      break;
+   case NfcCompareChecksComparedDataType_MFPlusFields:
+      for(int i = 0; i < diff; i++) {
+         const uint16_t* idx =
+            simple_array_cget(nfc_comparator->workers.compare_checks->diff.indices, i);
          furi_string_cat_printf(
             nfc_comparator->views.text_box.store, "%s", MFPlusFieldNames[*idx]);
-
          if(i < diff - 1) {
             furi_string_cat(nfc_comparator->views.text_box.store, ",\n");
          }
-      } else {
+      }
+      break;
+   case NfcCompareChecksComparedDataType_MFDesfireFields:
+      for(int i = 0; i < diff; i++) {
+         const uint16_t* idx =
+            simple_array_cget(nfc_comparator->workers.compare_checks->diff.indices, i);
+         furi_string_cat_printf(
+            nfc_comparator->views.text_box.store, "%s", MFDesfireFieldNames[*idx]);
+         if(i < diff - 1) {
+            furi_string_cat(nfc_comparator->views.text_box.store, ",\n");
+         }
+      }
+      break;
+   default:
+      for(int i = 0; i < diff; i++) {
+         const uint16_t* idx =
+            simple_array_cget(nfc_comparator->workers.compare_checks->diff.indices, i);
          furi_string_cat_printf(nfc_comparator->views.text_box.store, "%d", *idx);
-
          if(i < diff - 1) {
             furi_string_cat(nfc_comparator->views.text_box.store, ", ");
             if((i + 1) % 5 == 0) {
@@ -73,6 +91,7 @@ void nfc_comparator_data_breakdown_scene_on_enter(void* context) {
             }
          }
       }
+      break;
    }
 
    text_box_reset(nfc_comparator->views.text_box.view);
