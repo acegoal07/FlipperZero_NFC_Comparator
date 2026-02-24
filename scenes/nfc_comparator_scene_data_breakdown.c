@@ -25,6 +25,9 @@ void nfc_comparator_data_breakdown_scene_on_enter(void* context) {
    case NfcCompareChecksComparedDataType_EmvFields:
       unit_name = "fields";
       break;
+   case NfcCompareChecksComparedDataType_MFPlusFields:
+      unit_name = "fields";
+      break;
    default:
       unit_name = "units";
       break;
@@ -51,13 +54,21 @@ void nfc_comparator_data_breakdown_scene_on_enter(void* context) {
          if(i < diff - 1) {
             furi_string_cat(nfc_comparator->views.text_box.store, ",\n");
          }
+      } else if(
+         nfc_comparator->workers.compare_checks->diff.unit ==
+         NfcCompareChecksComparedDataType_MFPlusFields) {
+         furi_string_cat_printf(
+            nfc_comparator->views.text_box.store, "%s", MFPlusFieldNames[*idx]);
+
+         if(i < diff - 1) {
+            furi_string_cat(nfc_comparator->views.text_box.store, ",\n");
+         }
       } else {
          furi_string_cat_printf(nfc_comparator->views.text_box.store, "%d", *idx);
 
          if(i < diff - 1) {
             furi_string_cat(nfc_comparator->views.text_box.store, ", ");
-            if((i + 1) % 5 == 0 && nfc_comparator->workers.compare_checks->diff.unit !=
-                                      NfcCompareChecksComparedDataType_EmvFields) {
+            if((i + 1) % 5 == 0) {
                furi_string_cat(nfc_comparator->views.text_box.store, "\n");
             }
          }

@@ -11,6 +11,7 @@
 #include "protocols/st25tb/st25tb.h"
 #include "protocols/type_4_tag/type_4_tag.h"
 #include "protocols/iso15693_3/iso15693_3.h"
+#include "protocols/mf_plus/mf_plus.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +40,7 @@ typedef enum {
    NfcCompareChecksComparedDataType_Pages,
    NfcCompareChecksComparedDataType_Bytes,
    NfcCompareChecksComparedDataType_EmvFields,
+   NfcCompareChecksComparedDataType_MFPlusFields,
    NfcCompareChecksComparedDataType_Unkown
 } NfcCompareChecksDiffUnit;
 
