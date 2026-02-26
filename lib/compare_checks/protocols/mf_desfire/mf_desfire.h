@@ -19,13 +19,22 @@ void mf_desfire_compare_cards(
    const NfcDevice* card2);
 
 /**
+ * @enum MFDesfireFields
+ * @brief Enumeration of MF Desfire payment card fields for comparison
+ */
+typedef enum {
+   MFDesfireFields_Applications,
+   MFDesfireFields_HardwareVersion,
+   MFDesfireFields_SoftwareVersion
+} MFDesfireFields;
+
+/**
  * @brief Names for MF Plus fields
  */
 static const char* const MFDesfireFieldNames[] = {
-   "Applications",
-   "Hardware Version",
-   "Software version"
-};
+   [MFDesfireFields_Applications] = "Applications",
+   [MFDesfireFields_HardwareVersion] = "Hardware Version",
+   [MFDesfireFields_SoftwareVersion] = "Software Version"};
 
 #ifdef __cplusplus
 }

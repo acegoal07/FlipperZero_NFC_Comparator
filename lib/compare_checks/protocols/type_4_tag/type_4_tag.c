@@ -24,7 +24,6 @@ void type_4_tag_compare_cards(
       if(block1[i] != block2[i]) {
          uint16_t* idx = simple_array_get(checks->diff.indices, checks->diff.count);
          *idx = i;
-
          checks->diff.count++;
       }
    }

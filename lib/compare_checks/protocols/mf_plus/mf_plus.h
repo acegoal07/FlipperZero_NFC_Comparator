@@ -19,14 +19,26 @@ void mf_plus_compare_cards(
    const NfcDevice* card2);
 
 /**
+ * @enum MFPlusFields
+ * @brief Enumeration of MF Plus payment card fields for comparison
+ */
+typedef enum {
+   MFPlusFields_HardwareVersion,
+   MFPlusFields_SecurityLevel,
+   MFPlusFields_Size,
+   MFPlusFields_SoftwareVersion,
+   MFPlusFields_Type
+} MFPlusFields;
+
+/**
  * @brief Names for MF Plus fields
  */
 static const char* const MFPlusFieldNames[] = {
-   "Hardware Version",
-   "Security Level",
-   "Size",
-   "Software version",
-   "Type",
+   [MFPlusFields_HardwareVersion] = "Hardware Version",
+   [MFPlusFields_SecurityLevel] = "Security Level",
+   [MFPlusFields_Size] = "Size",
+   [MFPlusFields_SoftwareVersion] = "Software Version",
+   [MFPlusFields_Type] = "Type",
 };
 
 #ifdef __cplusplus

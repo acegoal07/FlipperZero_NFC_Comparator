@@ -43,8 +43,20 @@ typedef enum {
    NfcCompareChecksComparedDataType_EmvFields,
    NfcCompareChecksComparedDataType_MFPlusFields,
    NfcCompareChecksComparedDataType_MFDesfireFields,
-   NfcCompareChecksComparedDataType_Unkown
+   NfcCompareChecksComparedDataType_Unknown
 } NfcCompareChecksDiffUnit;
+
+/**
+ * @brief The unit names
+ */
+static const char* const nfc_compare_checks_diff_unit_strings[] = {
+   [NfcCompareChecksComparedDataType_Blocks] = "blocks",
+   [NfcCompareChecksComparedDataType_Pages] = "pages",
+   [NfcCompareChecksComparedDataType_Bytes] = "bytes",
+   [NfcCompareChecksComparedDataType_EmvFields] = "fields",
+   [NfcCompareChecksComparedDataType_MFPlusFields] = "fields",
+   [NfcCompareChecksComparedDataType_MFDesfireFields] = "fields",
+   [NfcCompareChecksComparedDataType_Unknown] = "unknown"};
 
 /**
  * @struct NfcComparatorCompareChecks
