@@ -139,6 +139,11 @@ void nfc_comparator_compare_checks_compare_cards(
             mf_plus_compare_cards(checks, card1, card2);
             break;
 
+         // MF Desfire
+         case NfcProtocolMfDesfire:
+            mf_desfire_compare_cards(checks, card1, card2);
+            break;
+
          default:
             checks->compare_type = NfcCompareChecksType_Shallow;
             break;
