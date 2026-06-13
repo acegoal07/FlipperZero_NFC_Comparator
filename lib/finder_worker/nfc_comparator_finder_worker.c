@@ -154,7 +154,12 @@ void nfc_comparator_finder_worker_compare_cards(
 
       dir_walk_set_recursive(dir_walk, settings->recursive);
 
+      int32_t read_count = 0;
       while(dir_walk_read(dir_walk, compare_worker->nfc_card_path, NULL) == DirWalkOK) {
+         if((++read_count % 16) == 0) {
+            furi_delay_ms(1);
+         }
+
          if(nfc_card_path && furi_string_cmpi(compare_worker->nfc_card_path, nfc_card_path) == 0) {
             NfcCompareWorkerType type = compare_worker->compare_type;
             nfc_comparator_compare_worker_reset(compare_worker);
