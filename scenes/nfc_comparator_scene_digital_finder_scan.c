@@ -17,11 +17,20 @@ static void nfc_comparator_digital_finder_scan_menu_callback(void* context) {
 
    nfc_comparator->workers.compare->compare_type = NfcCompareWorkerType_Deep;
 
-   nfc_comparator_finder_worker_compare_cards(
+   nfc_comparator->workers.searcher.worker = nfc_comparator_finder_searcher_worker_alloc(
       nfc_comparator->workers.compare,
+      &nfc_comparator->workers.searcher.settings,
       nfc_card_1,
-      &nfc_comparator->workers.finder.settings,
       nfc_comparator->views.file_browser.output);
+
+   nfc_comparator_finder_searcher_worker_start(nfc_comparator->workers.searcher.worker);
+   while(
+      *nfc_comparator_finder_searcher_worker_get_state(nfc_comparator->workers.searcher.worker) ==
+      NfcComparatorFinderSearcherWorkerState_Searching) {
+      furi_delay_ms(10);
+   }
+   nfc_comparator_finder_searcher_worker_stop(nfc_comparator->workers.searcher.worker);
+   nfc_comparator_finder_searcher_worker_free(nfc_comparator->workers.searcher.worker);
 
    nfc_comparator_led_worker_stop(nfc_comparator->notification_app);
 
@@ -67,8 +76,8 @@ void nfc_comparator_digital_finder_scan_scene_on_enter(void* context) {
 }
 
 bool nfc_comparator_digital_finder_scan_scene_on_event(void* context, SceneManagerEvent event) {
-   UNUSED(event);
    UNUSED(context);
+   UNUSED(event);
    return false;
 }
 
