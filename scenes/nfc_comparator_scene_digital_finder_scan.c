@@ -23,26 +23,12 @@ static void nfc_comparator_digital_finder_scan_menu_callback(void* context) {
       &nfc_comparator->workers.finder.settings,
       nfc_comparator->views.file_browser.output);
 
-   nfc_comparator_led_worker_stop(nfc_comparator->notification_app);
-
-   nfc_device_free(nfc_card_1);
-
-   furi_string_swap(
-      nfc_comparator->views.file_browser.output, nfc_comparator->views.file_browser.tmp_output);
-   furi_string_reset(nfc_comparator->views.file_browser.tmp_output);
-
-   nfc_comparator_led_worker_start(
-      nfc_comparator->notification_app, NfcComparatorLedState_Complete);
-
-   scene_manager_next_scene(nfc_comparator->scene_manager, NfcComparatorScene_FinderResults);
+   scene_manager_next_scene(nfc_comparator->scene_manager, NfcComparatorScene_DigitalFinderSearch);
 }
 
 void nfc_comparator_digital_finder_scan_scene_on_enter(void* context) {
    furi_assert(context);
    NfcComparator* nfc_comparator = context;
-
-   nfc_comparator_led_worker_start(
-      nfc_comparator->notification_app, NfcComparatorLedState_Running);
 
    furi_string_swap(
       nfc_comparator->views.file_browser.output, nfc_comparator->views.file_browser.tmp_output);
@@ -81,5 +67,4 @@ void nfc_comparator_digital_finder_scan_scene_on_exit(void* context) {
       furi_string_reset(nfc_comparator->views.file_browser.tmp_output);
    }
    file_browser_stop(nfc_comparator->views.file_browser.view);
-   nfc_comparator_led_worker_stop(nfc_comparator->notification_app);
 }
