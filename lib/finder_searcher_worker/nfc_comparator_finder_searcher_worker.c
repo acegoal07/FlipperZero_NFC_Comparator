@@ -155,6 +155,12 @@ void nfc_comparator_finder_searcher_worker_start(NfcComparatorFinderSearcherWork
 
 NfcComparatorFinderSearcherWorkerState*
    nfc_comparator_finder_searcher_worker_get_state(NfcComparatorFinderSearcherWorker* worker) {
-   furi_assert(worker);
+   static NfcComparatorFinderSearcherWorkerState stopped =
+      NfcComparatorFinderSearcherWorkerState_Stopped;
+
+   if(worker == NULL) {
+      return &stopped;
+   }
+
    return &worker->state;
 }
