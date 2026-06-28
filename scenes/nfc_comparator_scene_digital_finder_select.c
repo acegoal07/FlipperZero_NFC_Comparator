@@ -1,10 +1,8 @@
 #include "../nfc_comparator.h"
 
-static void nfc_comparator_digital_finder_scan_menu_callback(void* context) {
+static void nfc_comparator_digital_finder_select_menu_callback(void* context) {
    furi_assert(context);
    NfcComparator* nfc_comparator = context;
-
-   view_dispatcher_switch_to_view(nfc_comparator->view_dispatcher, NfcComparatorView_Loading);
 
    NfcDevice* nfc_card_1 = nfc_device_alloc();
    if(!nfc_device_load(
@@ -17,16 +15,16 @@ static void nfc_comparator_digital_finder_scan_menu_callback(void* context) {
 
    nfc_comparator->workers.compare->compare_type = NfcCompareWorkerType_Deep;
 
-   nfc_comparator_finder_worker_compare_cards(
+   nfc_comparator->workers.searcher.worker = nfc_comparator_finder_searcher_worker_alloc(
       nfc_comparator->workers.compare,
+      &nfc_comparator->workers.searcher.settings,
       nfc_card_1,
-      &nfc_comparator->workers.finder.settings,
       nfc_comparator->views.file_browser.output);
 
    scene_manager_next_scene(nfc_comparator->scene_manager, NfcComparatorScene_DigitalFinderSearch);
 }
 
-void nfc_comparator_digital_finder_scan_scene_on_enter(void* context) {
+void nfc_comparator_digital_finder_select_scene_on_enter(void* context) {
    furi_assert(context);
    NfcComparator* nfc_comparator = context;
 
@@ -43,7 +41,7 @@ void nfc_comparator_digital_finder_scan_scene_on_enter(void* context) {
       true);
    file_browser_set_callback(
       nfc_comparator->views.file_browser.view,
-      nfc_comparator_digital_finder_scan_menu_callback,
+      nfc_comparator_digital_finder_select_menu_callback,
       nfc_comparator);
    FuriString* tmp_str = furi_string_alloc_set_str(NFC_ITEM_LOCATION);
    file_browser_start(nfc_comparator->views.file_browser.view, tmp_str);
@@ -52,13 +50,13 @@ void nfc_comparator_digital_finder_scan_scene_on_enter(void* context) {
    view_dispatcher_switch_to_view(nfc_comparator->view_dispatcher, NfcComparatorView_FileBrowser);
 }
 
-bool nfc_comparator_digital_finder_scan_scene_on_event(void* context, SceneManagerEvent event) {
-   UNUSED(event);
+bool nfc_comparator_digital_finder_select_scene_on_event(void* context, SceneManagerEvent event) {
    UNUSED(context);
+   UNUSED(event);
    return false;
 }
 
-void nfc_comparator_digital_finder_scan_scene_on_exit(void* context) {
+void nfc_comparator_digital_finder_select_scene_on_exit(void* context) {
    furi_assert(context);
    NfcComparator* nfc_comparator = context;
    if(furi_string_empty(nfc_comparator->views.file_browser.output)) {
