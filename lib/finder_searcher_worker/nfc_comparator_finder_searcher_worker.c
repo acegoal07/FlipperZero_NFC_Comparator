@@ -1,5 +1,9 @@
 #include "nfc_comparator_finder_searcher_worker_i.h"
 
+static const char* ignore_folders[] = {
+   "/ext/nfc/assets",
+};
+
 static int32_t nfc_comparator_finder_searcher_worker_task(void* context) {
    NfcComparatorFinderSearcherWorker* worker = context;
 
@@ -128,6 +132,8 @@ NfcComparatorFinderSearcherWorker* nfc_comparator_finder_searcher_worker_alloc(
    worker->state = NfcComparatorFinderSearcherWorkerState_Stopped;
    worker->dir_walk = dir_walk_alloc(furi_record_open(RECORD_STORAGE));
    dir_walk_set_recursive(worker->dir_walk, worker->settings->recursive);
+   dir_walk_set_recurse_filter(
+      worker->dir_walk, ignore_folders, sizeof(ignore_folders) / sizeof(ignore_folders[0]));
 
    NfcDevice* nfc_card = nfc_device_alloc();
    nfc_device_set_data(
