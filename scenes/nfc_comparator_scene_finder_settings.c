@@ -1,4 +1,4 @@
-#include "nfc_comparator.h"
+#include "../nfc_comparator.h"
 
 typedef enum {
    NfcComparatorSceneFinderSettingsMenuSelection_Recursive
