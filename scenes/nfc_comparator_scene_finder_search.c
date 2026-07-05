@@ -2,6 +2,8 @@
 
 static volatile bool force_quit = false;
 
+static FuriString* tmp_str_static = NULL;
+
 void nfc_comparator_finder_search_scene_on_enter(void* context) {
    furi_assert(context);
    NfcComparator* nfc_comparator = context;
@@ -34,10 +36,21 @@ bool nfc_comparator_finder_search_scene_on_event(void* context, SceneManagerEven
       switch(*nfc_comparator_finder_searcher_worker_get_state(
          nfc_comparator->workers.searcher.worker)) {
       case NfcComparatorFinderSearcherWorkerState_Searching:
+         if(!tmp_str_static) tmp_str_static = furi_string_alloc();
          popup_set_header(
-            nfc_comparator->views.popup, "Finding....", 64, 5, AlignCenter, AlignTop);
+            nfc_comparator->views.popup, "Searching....", 60, 5, AlignCenter, AlignTop);
+         furi_string_printf(
+            tmp_str_static,
+            "%d/%d\n\nThis can take a while",
+            nfc_comparator->workers.searcher.worker->checked,
+            nfc_comparator->workers.searcher.worker->total);
          popup_set_text(
-            nfc_comparator->views.popup, "This can take a while", 64, 40, AlignCenter, AlignTop);
+            nfc_comparator->views.popup,
+            furi_string_get_cstr(tmp_str_static),
+            64,
+            30,
+            AlignCenter,
+            AlignTop);
          break;
       case NfcComparatorFinderSearcherWorkerState_Stopped:
          if(!force_quit) {
@@ -68,6 +81,10 @@ void nfc_comparator_finder_search_scene_on_exit(void* context) {
    popup_reset(nfc_comparator->views.popup);
    nfc_comparator_led_worker_stop(nfc_comparator->notification_app);
    furi_string_reset(nfc_comparator->views.file_browser.output);
+   if(tmp_str_static) {
+      furi_string_free(tmp_str_static);
+      tmp_str_static = NULL;
+   }
    nfc_comparator_finder_searcher_worker_free(nfc_comparator->workers.searcher.worker);
    nfc_comparator->workers.searcher.worker = NULL;
 }

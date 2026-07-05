@@ -16,8 +16,7 @@ typedef struct DirWalk DirWalk;
 /** Possible states for the NFC Comparator Searcher Worker */
 typedef enum {
    NfcComparatorFinderSearcherWorkerState_Stopped,
-   NfcComparatorFinderSearcherWorkerState_Searching,
-   NfcComparatorFinderSearcherWorkerState_Idle
+   NfcComparatorFinderSearcherWorkerState_Searching
 } NfcComparatorFinderSearcherWorkerState;
 
 /**
@@ -36,6 +35,8 @@ typedef struct NfcComparatorFinderSearcherWorker {
    DirWalk* dir_walk;
    NfcDevice* nfc_card_1;
    FuriString* nfc_card_path;
+   uint16_t checked;
+   uint16_t total;
 } NfcComparatorFinderSearcherWorker;
 
 NfcComparatorFinderSearcherWorker* nfc_comparator_finder_searcher_worker_alloc(

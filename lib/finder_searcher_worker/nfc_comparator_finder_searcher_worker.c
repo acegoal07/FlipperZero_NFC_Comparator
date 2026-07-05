@@ -2,13 +2,32 @@
 
 static int32_t nfc_comparator_finder_searcher_worker_task(void* context) {
    NfcComparatorFinderSearcherWorker* worker = context;
-   NfcDevice* nfc_card_2 = nfc_device_alloc();
-   NfcComparatorCompareWorker* tmp_compare_worker = nfc_comparator_compare_worker_alloc();
 
    if(dir_walk_open(worker->dir_walk, "/ext/nfc")) {
       FuriString* ext = furi_string_alloc();
+      while(dir_walk_read(worker->dir_walk, worker->compare_worker->nfc_card_path, NULL) ==
+            DirWalkOK) {
+         if(worker->state == NfcComparatorFinderSearcherWorkerState_Stopped) {
+            break;
+         }
 
-      dir_walk_set_recursive(worker->dir_walk, worker->settings->recursive);
+         path_extract_ext_str(worker->compare_worker->nfc_card_path, ext);
+
+         if(furi_string_cmpi_str(ext, ".nfc") == 0) {
+            worker->total++;
+         }
+      }
+
+      furi_string_free(ext);
+      dir_walk_close(worker->dir_walk);
+   } else {
+      worker->state = NfcComparatorFinderSearcherWorkerState_Stopped;
+   }
+
+   NfcDevice* nfc_card_2 = nfc_device_alloc();
+   NfcComparatorCompareWorker* tmp_compare_worker = nfc_comparator_compare_worker_alloc();
+   if(dir_walk_open(worker->dir_walk, "/ext/nfc")) {
+      FuriString* ext = furi_string_alloc();
 
       while(dir_walk_read(worker->dir_walk, worker->compare_worker->nfc_card_path, NULL) ==
             DirWalkOK) {
@@ -16,12 +35,12 @@ static int32_t nfc_comparator_finder_searcher_worker_task(void* context) {
             break;
          }
 
-         // skip self
          if(worker->nfc_card_path &&
             furi_string_cmpi(worker->compare_worker->nfc_card_path, worker->nfc_card_path) == 0) {
             NfcCompareWorkerType type = worker->compare_worker->compare_type;
             nfc_comparator_compare_worker_reset(worker->compare_worker);
             worker->compare_worker->compare_type = type;
+            worker->checked++;
             continue;
          }
 
@@ -36,6 +55,7 @@ static int32_t nfc_comparator_finder_searcher_worker_task(void* context) {
          }
 
          if(furi_string_cmpi_str(ext, ".nfc") == 0) {
+            worker->checked++;
             if(nfc_device_load(
                   nfc_card_2, furi_string_get_cstr(worker->compare_worker->nfc_card_path))) {
                if(worker->state == NfcComparatorFinderSearcherWorkerState_Stopped) {
@@ -70,7 +90,6 @@ static int32_t nfc_comparator_finder_searcher_worker_task(void* context) {
          }
       }
 
-      // final result selection
       if(!furi_string_empty(tmp_compare_worker->nfc_card_path) &&
          (furi_string_empty(worker->compare_worker->nfc_card_path) ||
           tmp_compare_worker->diff.count < worker->compare_worker->diff.count)) {
@@ -105,12 +124,10 @@ NfcComparatorFinderSearcherWorker* nfc_comparator_finder_searcher_worker_alloc(
    furi_thread_set_callback(worker->thread, nfc_comparator_finder_searcher_worker_task);
 
    worker->compare_worker = compare_worker;
-
    worker->settings = settings;
-
-   worker->state = NfcComparatorFinderSearcherWorkerState_Idle;
-
+   worker->state = NfcComparatorFinderSearcherWorkerState_Stopped;
    worker->dir_walk = dir_walk_alloc(furi_record_open(RECORD_STORAGE));
+   dir_walk_set_recursive(worker->dir_walk, worker->settings->recursive);
 
    NfcDevice* nfc_card = nfc_device_alloc();
    nfc_device_set_data(
@@ -120,6 +137,9 @@ NfcComparatorFinderSearcherWorker* nfc_comparator_finder_searcher_worker_alloc(
 
    worker->nfc_card_1 = nfc_card;
    worker->nfc_card_path = nfc_card_path;
+
+   worker->total = 0;
+   worker->checked = 0;
 
    return worker;
 }
@@ -148,7 +168,7 @@ void nfc_comparator_finder_searcher_worker_stop(NfcComparatorFinderSearcherWorke
 
 void nfc_comparator_finder_searcher_worker_start(NfcComparatorFinderSearcherWorker* worker) {
    furi_assert(worker);
-   if(worker->state == NfcComparatorFinderSearcherWorkerState_Idle) {
+   if(worker->state == NfcComparatorFinderSearcherWorkerState_Stopped) {
       worker->state = NfcComparatorFinderSearcherWorkerState_Searching;
       furi_thread_start(worker->thread);
    }
