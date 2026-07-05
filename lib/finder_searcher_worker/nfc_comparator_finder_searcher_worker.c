@@ -10,16 +10,10 @@ static int32_t nfc_comparator_finder_searcher_worker_task(void* context) {
 
       dir_walk_set_recursive(worker->dir_walk, worker->settings->recursive);
 
-      int32_t read_count = 0;
-
       while(dir_walk_read(worker->dir_walk, worker->compare_worker->nfc_card_path, NULL) ==
             DirWalkOK) {
          if(worker->state == NfcComparatorFinderSearcherWorkerState_Stopped) {
             break;
-         }
-
-         if((++read_count % 16) == 0) {
-            furi_delay_ms(1);
          }
 
          // skip self
