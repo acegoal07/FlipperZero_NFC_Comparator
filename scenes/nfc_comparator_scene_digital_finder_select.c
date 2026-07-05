@@ -4,24 +4,24 @@ static void nfc_comparator_digital_finder_select_menu_callback(void* context) {
    furi_assert(context);
    NfcComparator* nfc_comparator = context;
 
-   NfcDevice* nfc_card_1 = nfc_device_alloc();
+   NfcDevice* nfc_card_tmp = nfc_device_alloc();
    if(!nfc_device_load(
-         nfc_card_1, furi_string_get_cstr(nfc_comparator->views.file_browser.output))) {
-      nfc_device_free(nfc_card_1);
+         nfc_card_tmp, furi_string_get_cstr(nfc_comparator->views.file_browser.output))) {
+      nfc_device_free(nfc_card_tmp);
       scene_manager_next_scene(
          nfc_comparator->scene_manager, NfcComparatorScene_FailedToLoadNfcCard);
       return;
    }
 
    nfc_comparator->workers.compare->compare_type = NfcCompareWorkerType_Deep;
-
    nfc_comparator->workers.searcher.worker = nfc_comparator_finder_searcher_worker_alloc(
       nfc_comparator->workers.compare,
       &nfc_comparator->workers.searcher.settings,
-      nfc_card_1,
+      nfc_card_tmp,
       nfc_comparator->views.file_browser.output);
 
-   scene_manager_next_scene(nfc_comparator->scene_manager, NfcComparatorScene_DigitalFinderSearch);
+   nfc_device_free(nfc_card_tmp);
+   scene_manager_next_scene(nfc_comparator->scene_manager, NfcComparatorScene_FinderSearch);
 }
 
 void nfc_comparator_digital_finder_select_scene_on_enter(void* context) {

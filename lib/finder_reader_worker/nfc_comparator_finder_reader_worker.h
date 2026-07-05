@@ -8,6 +8,7 @@ extern "C" {
 
 typedef struct NfcComparatorFinderReaderWorker NfcComparatorFinderReaderWorker;
 typedef struct NfcComparatorCompareWorker NfcComparatorCompareWorker;
+typedef struct NfcComparatorFinderSearcherWorker NfcComparatorFinderSearcherWorker;
 typedef struct NfcComparatorFinderSearcherWorkerSettings NfcComparatorFinderSearcherWorkerSettings;
 typedef struct NfcDevice NfcDevice;
 typedef struct FuriString FuriString;
@@ -31,7 +32,8 @@ typedef enum {
  */
 NfcComparatorFinderReaderWorker* nfc_comparator_finder_reader_worker_alloc(
    NfcComparatorCompareWorker* compare_worker,
-   NfcComparatorFinderSearcherWorkerSettings* settings);
+   NfcComparatorFinderSearcherWorker** searcher_worker,
+   NfcComparatorFinderSearcherWorkerSettings* searcher_settings);
 
 /**
  * @brief Free all resources associated with a NfcComparatorFinderReaderWorker.

@@ -54,24 +54,8 @@ static int32_t nfc_comparator_finder_reader_worker_task(void* context) {
          break;
       }
       case NfcComparatorFinderReaderWorkerState_Finding: {
-         worker->searcher_worker = nfc_comparator_finder_searcher_worker_alloc(
-            worker->compare_worker, worker->settings, worker->scanned_nfc_card, NULL);
-         nfc_comparator_finder_searcher_worker_start(worker->searcher_worker);
-
-         while(worker->state == NfcComparatorFinderReaderWorkerState_Finding) {
-            if(worker->searcher_worker && worker->searcher_worker->state == NfcComparatorFinderSearcherWorkerState_Stopped) {
-               break;
-            } else if (!worker->searcher_worker) {
-               break;
-            }
-            furi_delay_ms(100);
-         }
-
-         if(worker->searcher_worker) {
-            nfc_comparator_finder_searcher_worker_stop(worker->searcher_worker);
-            nfc_comparator_finder_searcher_worker_free(worker->searcher_worker);
-            worker->searcher_worker = NULL;
-         }
+         *worker->searcher_worker = nfc_comparator_finder_searcher_worker_alloc(
+            worker->compare_worker, worker->searcher_settings, worker->scanned_nfc_card, NULL);
 
          worker->state = NfcComparatorFinderReaderWorkerState_Stopped;
          break;
@@ -85,7 +69,8 @@ static int32_t nfc_comparator_finder_reader_worker_task(void* context) {
 
 NfcComparatorFinderReaderWorker* nfc_comparator_finder_reader_worker_alloc(
    NfcComparatorCompareWorker* compare_worker,
-   NfcComparatorFinderSearcherWorkerSettings* settings) {
+   NfcComparatorFinderSearcherWorker** searcher_worker,
+   NfcComparatorFinderSearcherWorkerSettings* searcher_settings) {
    NfcComparatorFinderReaderWorker* worker = calloc(1, sizeof(NfcComparatorFinderReaderWorker));
    if(!worker) return NULL;
    worker->nfc = nfc_alloc();
@@ -95,7 +80,8 @@ NfcComparatorFinderReaderWorker* nfc_comparator_finder_reader_worker_alloc(
    }
 
    worker->compare_worker = compare_worker;
-   worker->settings = settings;
+   worker->searcher_worker = searcher_worker;
+   worker->searcher_settings = searcher_settings;
 
    worker->thread = furi_thread_alloc();
    furi_thread_set_name(worker->thread, "NfcComparatorFinderReaderWorker");
@@ -119,10 +105,6 @@ NfcComparatorFinderReaderWorker* nfc_comparator_finder_reader_worker_alloc(
 void nfc_comparator_finder_reader_worker_free(NfcComparatorFinderReaderWorker* worker) {
    furi_assert(worker);
    worker->state = NfcComparatorFinderReaderWorkerState_Stopped;
-   if(worker->searcher_worker) {
-      nfc_comparator_finder_searcher_worker_free(worker->searcher_worker);
-      worker->searcher_worker = NULL;
-   }
    if(worker->loaded_nfc_card) {
       nfc_device_free(worker->loaded_nfc_card);
       worker->loaded_nfc_card = NULL;
@@ -144,7 +126,6 @@ void nfc_comparator_finder_reader_worker_stop(NfcComparatorFinderReaderWorker* w
       furi_thread_join(worker->thread);
    } else if(worker->state == NfcComparatorFinderReaderWorkerState_Finding && worker->searcher_worker) {
       worker->state = NfcComparatorFinderReaderWorkerState_Stopped;
-      nfc_comparator_finder_searcher_worker_stop(worker->searcher_worker);
       furi_thread_join(worker->thread);
    }
 }

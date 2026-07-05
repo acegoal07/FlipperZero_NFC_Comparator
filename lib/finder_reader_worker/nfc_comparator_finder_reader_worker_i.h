@@ -29,6 +29,6 @@ typedef struct NfcComparatorFinderReaderWorker {
    NfcDevice* scanned_nfc_card; /**< NFC card scanned from reader */
    NfcPoller* nfc_poller; /**< NFC poller instance */
    NfcComparatorCompareWorker* compare_worker; /**< Comparison results structure */
-   NfcComparatorFinderSearcherWorker* searcher_worker; /**< The searcher for the filesystem */
-   NfcComparatorFinderSearcherWorkerSettings* settings; /**< Worker settings */
+   NfcComparatorFinderSearcherWorker** searcher_worker; /**< The searcher for the filesystem */
+   NfcComparatorFinderSearcherWorkerSettings* searcher_settings; /**< The Worker settings */
 } NfcComparatorFinderReaderWorker;

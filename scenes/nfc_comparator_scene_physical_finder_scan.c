@@ -12,8 +12,13 @@ void nfc_comparator_physical_finder_scan_scene_on_enter(void* context) {
 
    nfc_comparator->workers.compare->compare_type = NfcCompareWorkerType_Shallow;
 
+   /* Ensure we pass a NfcComparatorFinderSearcherWorker** to the alloc function.
+      Create a local pointer that points to the existing searcher struct and pass
+      its address (pointer to pointer). */
    nfc_comparator->workers.finder = nfc_comparator_finder_reader_worker_alloc(
-      nfc_comparator->workers.compare, &nfc_comparator->workers.searcher.settings);
+      nfc_comparator->workers.compare,
+      &nfc_comparator->workers.searcher.worker,
+      &nfc_comparator->workers.searcher.settings);
 
    nfc_comparator_finder_reader_worker_start(nfc_comparator->workers.finder);
    nfc_comparator_led_worker_start(
@@ -48,20 +53,11 @@ bool nfc_comparator_physical_finder_scan_scene_on_event(void* context, SceneMana
          popup_set_header(
             nfc_comparator->views.popup, "Polling....", 64, 5, AlignCenter, AlignTop);
          break;
-      case NfcComparatorFinderReaderWorkerState_Finding:
-         popup_set_header(
-            nfc_comparator->views.popup, "Finding....", 64, 5, AlignCenter, AlignTop);
-         break;
       case NfcComparatorFinderReaderWorkerState_Stopped:
          if(!force_quit) {
             nfc_comparator_finder_reader_worker_stop(nfc_comparator->workers.finder);
-
-            nfc_comparator_led_worker_stop(nfc_comparator->notification_app);
-            nfc_comparator_led_worker_start(
-               nfc_comparator->notification_app, NfcComparatorLedState_Complete);
-
             scene_manager_next_scene(
-               nfc_comparator->scene_manager, NfcComparatorScene_FinderResults);
+               nfc_comparator->scene_manager, NfcComparatorScene_FinderSearch);
          } else {
             nfc_comparator_compare_worker_reset(nfc_comparator->workers.compare);
          }

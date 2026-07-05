@@ -112,7 +112,13 @@ NfcComparatorFinderSearcherWorker* nfc_comparator_finder_searcher_worker_alloc(
 
    worker->dir_walk = dir_walk_alloc(furi_record_open(RECORD_STORAGE));
 
-   worker->nfc_card_1 = nfc_card_1;
+   NfcDevice* nfc_card = nfc_device_alloc();
+   nfc_device_set_data(
+      nfc_card,
+      nfc_device_get_protocol(nfc_card_1),
+      nfc_device_get_data(nfc_card_1, nfc_device_get_protocol(nfc_card_1)));
+
+   worker->nfc_card_1 = nfc_card;
    worker->nfc_card_path = nfc_card_path;
 
    return worker;
@@ -125,8 +131,9 @@ void nfc_comparator_finder_searcher_worker_free(NfcComparatorFinderSearcherWorke
       furi_thread_join(worker->thread);
    }
 
-   furi_thread_free(worker->thread);
+   nfc_device_free(worker->nfc_card_1);
    dir_walk_free(worker->dir_walk);
+   furi_thread_free(worker->thread);
 
    free(worker);
 }
